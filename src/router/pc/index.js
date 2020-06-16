@@ -1,0 +1,106 @@
+import Vue from "vue";
+import Router from "vue-router";
+import Login from "@/views/pc/login";
+import Register from "@/views/pc/register";
+import Home from "@/views/pc/home";
+import RenshiList from "@/views/pc/renshiList";
+import Welcome from "@/views/pc/welcome";
+import DepartmentList from "@/views/pc/departmentList";
+import DutyList from "@/views/pc/dutyList";
+import ProjectList from "@/views/pc/projectList";
+import Chuchai from "@/views/pc/chuchai";
+import BorrowMoney from "@/views/pc/borrowMoney";
+import Workflow from "@/views/pc/workflow";
+import Everyday from "@/views/pc/everyday";
+import All from "@/views/pc/all";
+
+Vue.use(Router);
+
+let router = new Router({
+  routes: [
+    {
+      path: "/login",
+      name: "login",
+      component: Login
+    },
+    {
+      path: "/register",
+      name: "register",
+      component: Register
+    },
+    {
+      path: "/home",
+      component: Home,
+      redirect: "/welcome",
+      children: [
+        {
+          path: "/expendTavel/queryPage", //差旅报销
+          alias: "/evection",
+          component: Chuchai
+        },
+        {
+          path: "/flowpost/queryPage", //流程设置
+          component: Workflow
+        },
+        {
+          path: "/expendLoan/queryPage", //  借款报销
+          component: BorrowMoney
+        },
+        {
+          path: "/expendDaily/queryPage", //  日常报销
+          component: Everyday
+        },
+        {
+          path: "/welcome",
+          component: Welcome
+        },
+        {
+          path: "/employee/queryPage", //人事管理
+          component: RenshiList
+        },
+        {
+          path: "/department/queryListall", //部门管理
+          component: DepartmentList
+        },
+        {
+          path: "/jobpost/queryPage", //职务管理
+          component: DutyList
+        },
+        {
+          path: "/projectType/listAllPro", //项目管理
+          component: ProjectList
+        }
+      ]
+    },
+    {
+      path: "*",
+      name: "all",
+      component: All
+    }
+  ]
+});
+
+// 为路由对象添加 beforeEach 导航守卫
+router.beforeEach((to, from, next) => {
+  // 如果用户访问的登录页面，直接放行
+  if (to.path === "/login") return next();
+  // 从 sessionStorage 中获取到保存的 token 值
+  const tokenStr = window.sessionStorage.getItem("token");
+  // 如果没有 token 强制跳转到登录页面
+  if (!tokenStr) return next("/login");
+  // 如果有 token 直接放行
+  next();
+});
+
+/**
+ * 判断是否为移动设备，是，则跳转到移动端的路径
+ */
+router.beforeEach((to, from, next) => {
+  if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+    window.location.href = "/m_index.html#/";
+    return;
+  }
+  next();
+});
+
+export default router;

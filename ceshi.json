@@ -1,0 +1,25 @@
+{
+  "employee": [{
+    "empid": "",
+    "empname": "王二",
+    "empsex": "男",
+    "empcard": "61061120011011550x",
+    "dept": {
+      "deptid": "b1ceabecf5e54665855b910b72a21a23"
+    },
+    "empcode": "01010101",
+    "jobpost": {
+      "postid": "544098b91c364b4e8cfe196caa1dbaa9"
+    },
+    "posttitle": "dasdas",
+    "bankcard": "3123213123123213",
+    "bankname": "浦发银行",
+    "edubg": "博士",
+    "edudegree": "博士",
+    "emptel": "13254678974",
+    "state": "1",
+    "isflag": "0",
+    "signature": "4324234234.jpg"
+  }],
+  "webchatid": "3123123123123"
+}
