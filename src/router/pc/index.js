@@ -12,6 +12,7 @@ import Chuchai from "@/views/pc/chuchai";
 import BorrowMoney from "@/views/pc/borrowMoney";
 import Workflow from "@/views/pc/workflow";
 import Everyday from "@/views/pc/everyday";
+import CondSearch from "@/views/pc/condSearch";
 import All from "@/views/pc/all";
 
 Vue.use(Router);
@@ -69,6 +70,10 @@ let router = new Router({
         {
           path: "/projectType/listAllPro", //项目管理
           component: ProjectList
+        },
+        {
+          path: "/condSearch",
+          component: CondSearch
         }
       ]
     },

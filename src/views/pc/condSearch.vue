@@ -7,25 +7,49 @@
       <el-breadcrumb-item>人事管理</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 卡片视图区域 -->
-
     <el-card>
-      <el-row>
-        <el-col :span="2">
-          <el-button type="primary" icon="el-icon-plus" size="medium" @click="addPersonInfoBtn">新增人员</el-button>
-        </el-col>
-        <el-col :span="8">
-          <el-input placeholder="请输入内容" v-model="keyWords" class="input-with-select" clearable @clear="clearSearch">
-            <el-select v-model="select" slot="prepend" placeholder="请选择">
-              <el-option label="身份证号" value="1"></el-option>
-              <el-option label="手机号" value="2"></el-option>
-            </el-select>
-            <el-button type="primary" slot="append" icon="el-icon-search" @click="searchBtn"></el-button>
-          </el-input>
-        </el-col>
-        <el-col :span="2" :offset="12">
-          <el-button type="primary" plain icon="el-icon-search" size="medium" @click="condSearchBtn">多条件查询</el-button>
-        </el-col>
-      </el-row>
+      <el-form :model="keyWordForm" class="demo-form-inline" label-width="60px">
+        <el-row :gutter="0">
+          <el-col :span="3">
+            <el-form-item label="员工id">
+              <el-input v-model="keyWordForm.empid" placeholder="请输入员工id" clearable @clear="clearSearch"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="3">
+            <el-form-item label="姓名">
+              <el-input v-model="keyWordForm.empname" placeholder="请输入姓名" clearable @clear="clearSearch"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="3">
+            <el-form-item label="部门">
+              <el-select v-model="keyWordForm.deptid" placeholder="请选择部门" clearable @clear="clearSearch">
+                <el-option v-for="item in deptDataList" :key="item.deptid" :label="item.deptname" :value="item.deptid">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="3">
+            <el-form-item label="职务">
+              <el-select v-model="addFormData.postid" placeholder="请选择职务" clearable @clear="clearSearch">
+                <el-option v-for="item in postLists" :key="item.postid" :label="item.postname" :value="item.postid">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="3">
+            <el-form-item label="状态">
+              <el-select v-model="keyWordForm.state" placeholder="请选择状态" clearable @clear="clearSearch">
+                <el-option label="在职" value="1"></el-option>
+                <el-option label="离职" value="0"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="1">
+            <el-button style="margin-left: 30px;" type="primary" icon="el-icon-search" @click="queryInfoBtn">查询
+            </el-button>
+          </el-col>
+        </el-row>
+      </el-form>
       <div class="info_table">
         <el-table :data="personLists" style="width: 100%" border stripe>
           <el-table-column type="expand">
@@ -331,8 +355,13 @@
   export default {
     data() {
       return {
-        keyWords: '',
-        select: '',
+        keyWordForm: {
+          empid: '',
+          empname: '',
+          deptid: '',
+          postid: '',
+          state: '',
+        },
         // 完善人员信息对话框隐藏
         prePersonInfoDialog: false,
         // 职务菜单数据
@@ -549,8 +578,8 @@
       };
     },
     created() {
-      // 页面加载获取人事信息
-      this.getPersonList();
+      this.getPostList();
+      this.getDeptList()
     },
     methods: {
       // 获取人事列表数据
@@ -563,6 +592,7 @@
           employee,
           pagenum
         });
+        console.log(res);
         if (res.length < 0) return;
         const data = JSON.parse(res);
         this.personLists = data.emp
@@ -572,7 +602,7 @@
       // 分页事件
       handleCurrentChange(newPage) {
         this.pagenum = newPage - 1;
-        this.getPersonList();
+        this.queryInfoBtn();
       },
       // 新增人员按钮
       addPersonInfoBtn() {
@@ -781,12 +811,32 @@
         }
       },
       clearSearch() {
-        this.getPersonList()
+        this.personLists = []
       },
-      condSearchBtn() {
-        this.$router.push({
-          path: "/condSearch"
-        })
+      async queryInfoBtn() {
+        let employee = [{
+          empid: this.keyWordForm.empid,
+          empname: this.keyWordForm.empname,
+          dept: {
+            deptid: this.keyWordForm.deptid
+          },
+          jobpost: {
+            postid: this.keyWordForm.postid
+          },
+          state: this.keyWordForm.state
+        }]
+        let pagenum = this.pagenum;
+        const {
+          data: res
+        } = await this.$axios.post("/employee/querybyparm", {
+          employee,
+          pagenum
+        });
+        if (res.length < 0) return;
+        const data = JSON.parse(res);
+        this.personLists = data.emp
+        console.log(this.personLists);
+        this.totle = data.pagetotal;
       }
     }
   };
