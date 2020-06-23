@@ -13,6 +13,11 @@ import BorrowMoney from "@/views/pc/borrowMoney";
 import Workflow from "@/views/pc/workflow";
 import Everyday from "@/views/pc/everyday";
 import CondSearch from "@/views/pc/condSearch";
+import RoleAdmin from "@/views/pc/roleAdmin";
+import UserAdmin from "@/views/pc/userAdmin";
+import Banner from "@/views/pc/banner";
+import DayApply from "@/views/pc/dayApply";
+import BorrowApply from "@/views/pc/borrowApply";
 import All from "@/views/pc/all";
 
 Vue.use(Router);
@@ -48,8 +53,16 @@ let router = new Router({
           component: BorrowMoney
         },
         {
+          path: "/expendLoan/borrowApply",
+          component: BorrowApply
+        },
+        {
           path: "/expendDaily/queryPage", //  日常报销
           component: Everyday
+        },
+        {
+          path: "/expendDaily/dayApply", //  日常报销申请界面
+          component: DayApply
         },
         {
           path: "/welcome",
@@ -74,6 +87,18 @@ let router = new Router({
         {
           path: "/condSearch",
           component: CondSearch
+        },
+        {
+          path: "/role/queryPage",
+          component: RoleAdmin
+        },
+        {
+          path: "/admin/queryPage",
+          component: UserAdmin
+        },
+        {
+          path: "/banner/queryPage",
+          component: Banner
         }
       ]
     },

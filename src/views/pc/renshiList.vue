@@ -67,9 +67,9 @@
           </el-table-column>
           <el-table-column label="工号" prop="empcode">
           </el-table-column>
-          <el-table-column label="职称" prop="postname">
+          <el-table-column label="部门" prop="deptname">
           </el-table-column>
-          <el-table-column label="职务" prop="posttitle">
+          <el-table-column label="职务" prop="postname">
           </el-table-column>
           <el-table-column label="联系电话" prop="emptel">
           </el-table-column>
@@ -566,6 +566,8 @@
         if (res.length < 0) return;
         const data = JSON.parse(res);
         this.personLists = data.emp
+        console.log(this.personLists);
+
         console.log(this.personLists);
         this.totle = data.pagetotal;
       },

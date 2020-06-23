@@ -16,11 +16,13 @@
         <!-- 已申请列表视图 -->
         <el-tab-pane>
           <span slot="label"><i class="el-icon-date"></i> 已申请列表</span>
-          <el-button type="primary" @click="borrowMoneyBtn">借款申请入口</el-button>
+          <router-link to="/expendLoan/borrowApply">
+            <el-button type="primary">借款申请入口</el-button>
+          </router-link>
           <el-table :data="borrowMoneList" border style="width: 100%">
             <el-table-column prop="formcode" label="表单编号" align="center">
             </el-table-column>
-            <el-table-column prop="protypeid" label="项目名称" align="center">
+            <el-table-column prop="protypename" label="项目名称" align="center">
             </el-table-column>
 
             <el-table-column prop="deptname" label="部门名称" align="center">
@@ -120,172 +122,6 @@
         </el-tab-pane>
       </el-tabs>
     </el-card>
-    <!-- 借款报销入口对话框 -->
-    <el-dialog title="报销申请明细填写" :visible.sync="borrowMoneyBtnDialog" width="70%" :before-close="handleborrowMoneyClose">
-      <el-form :model="borrowMoneyForm" ref="borrowMoneyFormRef" :rules="borrowMoneyFormRules">
-        <el-row :gutter="20">
-          <el-col :span="6">
-            <el-form-item prop="deptid" label="部门名称:" style="width: 100%;">
-              <el-input v-model="borrowMoneyForm.deptname" placeholder="请输入部门编号"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item prop="protypeid" label="项目编号:">
-              <el-cascader style="width: 100%;" :props="defaultData" :show-all-levels="false"
-                           v-model="borrowMoneyForm.protypeid" :options="chooseProList" @change="handleProList">
-              </el-cascader>
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="借款金额:" prop="loanpay">
-              <el-input type="number" v-model="borrowMoneyForm.loanpay" placeholder="请输入报销金额"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="借款用途:" prop="loanusefor">
-              <el-select v-model="borrowMoneyForm.loanusefor" placeholder="请选择借款用途" style="width: 100%;"
-                         @change="changeLoan">
-                <el-option v-for="(item, index) in loanOptions" :key="item.index" :label="item.label"
-                           :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <!-- 出差人数，天数，地点的显示隐藏 -->
-        <el-row :gutter="20" :class="[loanOptionsVal == '1' ? 'display' : '']">
-          <el-col :span="8">
-            <el-form-item label="出差人数:" prop="tranum">
-              <el-input v-model="borrowMoneyForm.tranum" placeholder="请输入出差人数"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="出差天数:" prop="tradays">
-              <el-input v-model="borrowMoneyForm.tradays" placeholder="请输入出差天数"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="出差地点:" prop="traadd">
-              <el-input v-model="borrowMoneyForm.traadd" placeholder="请输入出差地点"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <el-form-item label="支付方式:" prop="payway">
-              <el-select v-model="borrowMoneyForm.payway" placeholder="请选择支付方式" style="width: 100%;"
-                         @change="changePublic">
-                <el-option v-for="(item, index) in payWayOptions" :key="item.index" :label="item.label"
-                           :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <!-- <el-col :span="6">
-            <el-form-item label="对冲号:" prop="hedgenum">
-              <el-input v-model="borrowMoneyForm.hedgenum" placeholder="请输入报销要求"></el-input>
-            </el-form-item>
-          </el-col> -->
-          <el-col :span="8">
-            <el-form-item label="报销标识:" prop="isflag">
-              <el-select v-model="borrowMoneyForm.isflag" placeholder="请选择报销标识" style="width: 100%;">
-                <el-option v-for="(item, index) in flagOptions" :key="item.index" :label="item.label"
-                           :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="预报销日期:" prop="expecttime">
-              <el-date-picker v-model="borrowMoneyForm.expecttime" type="date" placeholder="请选择预报销日期"
-                              style="width: 100%;" value-format="yyyy-MM-dd">
-              </el-date-picker>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <!-- 对公账户显示隐藏 -->
-        <el-row :gutter="20" :class="[isPublicVal == '0' ? '' : 'display']">
-          <el-col :span="8">
-            <el-form-item label="公司名称:" prop="payname">
-              <el-input v-model="borrowMoneyForm.payname" placeholder="请输入公司名称"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="公司账号:" prop="payacc">
-              <el-input v-model="borrowMoneyForm.payacc" placeholder="请输入公司账号"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="开户行:" prop="paybank">
-              <el-input v-model="borrowMoneyForm.paybank" placeholder="请输入开户行名称"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <!-- 对私账户显示隐藏 -->
-        <el-row :gutter="20" :class="[isPublicVal == '1' ? '' : 'display']">
-          <el-col :span="8" class="info_name" style="display: flex;">
-            <el-form-item label="个人姓名:" prop="payname" style="flex: 5;">
-              <el-input v-model="borrowMoneyForm.payname" placeholder="请输入个人姓名"></el-input>
-            </el-form-item>
-            <el-form-item label="　　　　" style="flex: 1; margin-left: 10px;">
-              <el-button type="primary" @click="editInfoBtn">修改</el-button>
-            </el-form-item>
-          </el-col>
-          <el-col :span="6" class="chooseInfo" v-if="isChoose">
-            <ul v-for=" item in chooseInfoList">
-              <li @click="clickInfo(item)">{{item.empname}}</li>
-            </ul>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="个人账号:" prop="payacc">
-              <el-input v-model="borrowMoneyForm.payacc" placeholder="请输入个人账号"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="开户行名称:" prop="paybank">
-              <el-input v-model="borrowMoneyForm.paybank" placeholder="请输入开户行名称"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="24">
-            <el-form-item label="借款事由:" prop="loancause">
-              <el-input v-model="borrowMoneyForm.loancause" placeholder="请输入内容摘要"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="24">
-            <!-- <el-button @click="" type="primary" size="mini"><i class="el-icon-plus"></i> 添加附件</el-button> -->
-            <el-form>
-              <el-form-item>
-                <div class="upload_img">
-                  <el-upload class="upload-demo" :action="uploadURL" :on-preview="handlePreview"
-                             :on-remove="handleRemove" :before-remove="beforeRemove" multiple :limit="6"
-                             :on-exceed="handleExceed" :on-success="uploadFileSuccess" :file-list="fileDataList">
-                    <el-button size="mini" type="primary"><i class="el-icon-plus"></i> 添加附件</el-button> <span slot="tip"
-                          class="el-upload__tip"> 只能上传jpg/png/pdf文件</span>
-                  </el-upload>
-                </div>
-              </el-form-item>
-
-            </el-form>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="24">
-            <el-form-item label="备注:" prop="memo">
-              <el-input v-model="borrowMoneyForm.memo" placeholder="请输入备注"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="borrowMoneyBtnDialog = false">取 消</el-button>
-        <el-button type="primary" @click="addborrowMoneyForm">确 认</el-button>
-      </span>
-    </el-dialog>
     <!-- 发票上传对话框事件 -->
     <el-dialog title="发票上传" :visible.sync="NoteUploadDV" width="50%">
       <el-button @click="addNoteData" type="primary" size="mini">
@@ -323,7 +159,7 @@
         </el-form-item>
         <el-form-item label="分管校长：" label-width="90px">
           <el-select v-model="submitForm.fgxz" placeholder="请选择分管校长">
-            <el-option v-for="item in rectorList" :key="item.postid" :label="item.postname" :value="item.postid">
+            <el-option v-for="item in rectorList" :key="item.empcard" :label="item.empname" :value="item.empcard">
             </el-option>
           </el-select>
         </el-form-item>
@@ -555,26 +391,15 @@
     data() {
       return {
         isLoading: false,
-        chooseProList: [],
-        defaultData: { //联级选择
-          value: 'protypeid',
-          label: 'proname',
-          children: 'children'
-        },
+
+
         // 付款凭证预览临时路径
         dialogImageUrl: '',
         // 付款凭证预览对话框隐藏
         dialogVisible: false,
         // 付款凭证数据
         voucherList: [],
-        // 附件数组
-        fileListS: [],
-        isChoose: false,
-        // 对私人员信息
-        chooseInfoList: [],
-        isPublicVal: 0,
-        // 附件数据暂存
-        fileDataList: [],
+
         lookDayDialog: false,
         reverse: true,
         CommentLists: [],
@@ -625,133 +450,17 @@
         NoteUploadDV: false,
         // 分管校长数组
         rectorList: [],
-        // 借款用途的值控制人数，天数，地点是否显示的值
-        loanOptionsVal: '1',
+
         // 借款报销已申请列表
         borrowMoneList: [],
-        // 借款申请数据填写的校验规则
-        borrowMoneyFormRules: {
-          protypeid: [{
-            required: true,
-            message: '请输入项目id',
-            trigger: 'change'
-          }, ],
-          deptid: [{
-            required: true,
-            message: '请输入部门id',
-            trigger: 'blur'
-          }, ],
-          loanpay: [{
-            required: true,
-            message: '请输入报销金额',
-            trigger: 'blur'
-          }, ],
-          loanusefor: [{
-            required: true,
-            message: '请选择借款用途',
-            trigger: 'change'
-          }, ],
-          hedgenum: [{
-            required: true,
-            message: '请输入对冲号',
-            trigger: 'blur'
-          }, ],
-          payway: [{
-            required: true,
-            message: '请选择支付方式',
-            trigger: 'change'
-          }, ],
-          isflag: [{
-            required: true,
-            message: '请选择报销标识',
-            trigger: 'change'
-          }, ],
-          expecttime: [{
-            required: true,
-            message: '请选择预报销日期',
-            trigger: 'change'
-          }, ],
-          loancause: [{
-            required: true,
-            message: '请输入借款事由',
-            trigger: 'blur'
-          }, ],
-          payname: [{
-            required: true,
-            message: '请输入姓名',
-            trigger: 'blur'
-          }, ],
-          payacc: [{
-            required: true,
-            message: '请输入卡号',
-            trigger: 'blur'
-          }, ],
-          paybank: [{
-            required: true,
-            message: '请输入开户行',
-            trigger: 'blur'
-          }, ],
-        },
-        // 借款申请填写参数项
-        borrowMoneyForm: {
-          protypeid: '743375a5dcd24ff09997dfe4fc8b1d8a',
-          deptid: '',
-          deptname: '',
-          loanpay: '',
-          loanusefor: '',
-          tranum: '',
-          tradays: '',
-          traadd: '',
-          hedgenum: '',
-          payway: '',
-          isflag: '',
-          expecttime: '',
-          loancause: '',
-          memo: '',
-          payname: '',
-          payacc: '',
-          paybank: '',
-        },
+
         // 控制借款申请对话框的显示与隐藏
         borrowMoneyBtnDialog: false,
         // 总条数
         pagetotal: "0",
         // 页码数
         pagenum: '0',
-        // 报销标识数据
-        flagOptions: [{
-            value: "0",
-            label: "办公业务"
-          },
-          {
-            value: "1",
-            label: "教学业务"
-          },
-          {
-            value: "2",
-            label: "学生业务"
-          }
-        ],
-        // 借款选择数据
-        loanOptions: [{
-            value: "0",
-            label: "差旅借款"
-          },
-          {
-            value: "1",
-            label: "普通借款"
-          }
-        ],
-        // 支付方式选择数据
-        payWayOptions: [{
-            value: "0",
-            label: "对公"
-          },
-          {
-            value: "1",
-            label: "对私"
-          }
-        ],
+
         // 判断是否为出纳
         cashier: "",
         postidBtn: ''
@@ -764,134 +473,21 @@
       this.getBorrowMoneWaitList()
       // 调用获取已办理列表数据
       this.getBorrowMoneFinishList()
-      let userInfo = sessionStorage.getItem('userInfo')
-      let userInfoData = JSON.parse(userInfo)
-      this.borrowMoneyForm.deptid = userInfoData.deptid
-      this.borrowMoneyForm.deptname = userInfoData.deptname
-      this.postidBtn = userInfoData.postid
     },
     methods: {
-      // 借款报销入口按钮事件
-      async borrowMoneyBtn() {
-        let userInfo = sessionStorage.getItem('userInfo')
-        let userInfoData = JSON.parse(userInfo)
-        let deptid = userInfoData.deptid
-        // 获取部门项目层级列表
-        const result = await this.$axios.post('/projectType/queryDeptProList', {
-          deptid
-        })
-        this.chooseProList = JSON.parse(result.data)
-        console.log(this.chooseProList)
-        this.borrowMoneyBtnDialog = true;
-      },
-      // 项目选择事件
-      handleProList(val) {
-        console.log(val)
-      },
-      // 借款报销对话框确认按钮
-      addborrowMoneyForm() {
-        console.log(this.fileDataList)
-        this.fileListS = []
-        let fileDataList = this.fileDataList.map(e => {
-
-          let obj = {}
-          let res = JSON.parse(e.response)
-          obj.picpath = res.relationPath
-          obj.recname = res.filename
-          obj.isflag = "1"
-          obj.recid = ""
-          obj.expendid = ""
-          obj.receiptcode = ""
-          this.fileListS.push(obj)
-
-          console.log('obj', obj)
-        })
-        console.log('fileListS', this.fileListS)
-        console.log('borrowMoneyForm', this.borrowMoneyForm)
-        this.$refs.borrowMoneyFormRef.validate(async valid => {
-
-          if (valid) {
-            let expendLoan = [{
-                loanid: "",
-                proType: {
-                  protypeid: this.borrowMoneyForm.protypeid
-                },
-                dept: {
-                  deptid: this.borrowMoneyForm.deptid
-                },
-                loancause: this.borrowMoneyForm.loancause,
-                loanusefor: this.borrowMoneyForm.loanusefor,
-                tranum: this.borrowMoneyForm.tranum,
-                traadd: this.borrowMoneyForm.traadd,
-                tradays: this.borrowMoneyForm.tradays,
-                loanpay: this.borrowMoneyForm.loanpay,
-                expecttime: this.borrowMoneyForm.expecttime,
-                hedgenum: this.borrowMoneyForm.hedgenum,
-                payway: this.borrowMoneyForm.payway,
-                memo: this.borrowMoneyForm.memo,
-                isflag: this.borrowMoneyForm.isflag,
-                payname: this.borrowMoneyForm.payname,
-                payacc: this.borrowMoneyForm.payacc,
-                paybank: this.borrowMoneyForm.paybank,
-                expendReceiptlist: this.fileListS
-              }],
-              empcard = sessionStorage.getItem('ulogin')
-            console.log(expendLoan)
-            const {
-              data: res
-            } = await this.$axios.post('/expendLoan/webSaveLoan', {
-              expendLoan,
-              empcard
-            })
-            const data = JSON.parse(res)
-            if (data.retCode == '0') {
-              this.$message.success('申请信息填写成功');
-            } else {
-              this.$message.error('申请信息填写失败');
-            }
-            this.borrowMoneyBtnDialog = false
-            this.getBorrowMoneyList()
-          } else {
-            return this.$message.error('请完善申请信息');
-          }
-        })
-      },
       // 已申请列表分页事件
       handleborrowMoneyPage(newPage) {
         this.pagenum = newPage - 1
         this.getBorrowMoneyList()
       },
-      // 借款报销对话框关闭事件
-      handleborrowMoneyClose() {
-        this.borrowMoneyBtnDialog = false;
-        this.$refs.borrowMoneyFormRef.resetFields();
-      },
-      // 借款用途改变事件
-      changeLoan(val) {
-        this.loanOptionsVal = val
-      },
-      // 对公对私事件改变
-      changePublic(val) {
-        this.isPublicVal = val
-        if (val == 0) {
-          this.borrowMoneyForm.payname = ''
-          this.borrowMoneyForm.payacc = ''
-          this.borrowMoneyForm.paybank = ''
-        } else {
-          let userInfo = sessionStorage.getItem('userInfo')
-          let userInfoData = JSON.parse(userInfo)
-          this.borrowMoneyForm.payname = userInfoData.empname
-          this.borrowMoneyForm.payacc = userInfoData.bankcard
-          this.borrowMoneyForm.paybank = userInfoData.bankname
-          this.borrowMoneyForm.deptid = userInfoData.deptid
-        }
-      },
       // 获取分管校长数据
       async getRectorList() {
         const {
           data: res
-        } = await this.$axios.post('/jobpost/getFG')
+        } = await this.$axios.post('/employee/queryFg')
+
         this.rectorList = JSON.parse(res)
+        console.log(this.rectorList);
       },
       // 获取已申请数据列表
       async getBorrowMoneyList() {
@@ -1139,67 +735,6 @@
         this.getLoanInfo(loanid)
         this.lookDayDialog = true
       },
-      handleRemove(file, fileList) {
-        console.log(fileList)
-        this.fileDataList = fileList
-      },
-      handlePreview(file) {
-        let res = JSON.parse(file.response)
-        let filePath = res.relationPath
-        let filePathR = res.filename
-        console.log(filePath, filePathR);
-        if (filePathR.includes('.pdf')) {
-          const elink = document.createElement('a');
-          elink.href = this.imgURL + filePath; //basePdfUrl pdf.js插件的预览
-          elink.target = '_block';
-          document.body.appendChild(elink);
-          elink.click();
-          document.body.removeChild(elink);
-        } else {
-          window.open(
-            this.imgURL + filePath
-          )
-        }
-      },
-      handleExceed(files, fileList) {
-        this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
-      },
-      beforeRemove(file, fileList) {
-        return this.$confirm(`确定移除 ${ file.name }？`);
-      },
-      uploadFileSuccess(file, fileList) {
-        console.log(fileList)
-        this.fileDataList.push(fileList)
-      },
-      // 修改对私信息按钮
-      async editInfoBtn() {
-        let userInfo = sessionStorage.getItem('userInfo')
-        let userInfoData = JSON.parse(userInfo)
-        let deptid = userInfoData.deptid
-        let employee = [{
-            dept: {
-              deptid
-            },
-            jobpost: {
-              postid: ""
-            }
-          }
-
-        ]
-        const res = await this.$axios.post('/employee/querybyDept', {
-          employee
-        })
-        this.chooseInfoList = JSON.parse(res.data)
-        this.isChoose = true
-      },
-      // 点击选择人员信息
-      clickInfo(item) {
-        console.log(item)
-        this.borrowMoneyForm.payname = item.empname
-        this.borrowMoneyForm.payacc = item.bankcard
-        this.borrowMoneyForm.paybank = item.bankname
-        this.isChoose = false
-      },
       // 付款凭证删除
       handlePictureRemove(file, fileList) {
         let voucherDataRemove = JSON.parse(file.response).relationPath
@@ -1256,10 +791,6 @@
 </script>
 
 <style scoped>
-  .display {
-    display: none;
-  }
-
   #avatar-uploader {
     border: 1px dashed #d9d9d9;
     border-radius: 6px;
@@ -1337,32 +868,6 @@
     border: 1px solid #DCDFE6;
     padding: 8px;
     border-radius: 5px;
-  }
-
-  .info_name {
-    position: relative;
-  }
-
-  .chooseInfo {
-    position: absolute;
-    top: 80px;
-    background: #fff;
-    z-index: 99;
-  }
-
-  .chooseInfo ul {
-    margin: 0;
-    padding: 0;
-    display: block;
-    padding-left: 12px;
-  }
-
-  .chooseInfo ul li {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    line-height: 30px;
-    font-size: 13.3px;
   }
 
 </style>

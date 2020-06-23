@@ -1,7 +1,5 @@
 <template>
   <div>
-    <!-- 菜单组件 -->
-    <topHome></topHome>
     <!-- 面包屑 -->
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
@@ -22,7 +20,7 @@
           </el-table-column>
           <el-table-column label="操作" align="center">
             <template slot-scope="scope">
-              <van-button :disabled="scope.row.currentstep == 2 ? true : false" type="info" size="mini"
+              <van-button :disabled="scope.row.currentstep == 2 ? false : true" type="info" size="mini"
                           @click="goApplyBtn(scope.row)">提交</van-button>
             </template>
           </el-table-column>
@@ -191,7 +189,6 @@
 </template>
 
 <script>
-  import top_home from './home.vue'
   import GLOBAL from '../../api/global_path'
   export default {
     data() {
@@ -259,9 +256,6 @@
         WaitPage: 1
       }
     },
-    components: {
-      topHome: top_home
-    },
     created() {
       // 调用获取分管校长函数
       this.getRectorList()
@@ -301,6 +295,7 @@
 
       // 提交审核打开对话框按钮事件
       goApplyBtn(row) {
+        console.log('++++++++++')
         this.submitForm.dailyid = row.dailyid
         this.submitForm.empcard = sessionStorage.getItem('ulogin')
         this.dayAppleInfoDialog = true
@@ -506,15 +501,15 @@
 
 <style scoped="scoped">
   .van-pagination {
-    margin-top: 0.875rem;
+    margin-top: .875rem;
   }
 
   .el-breadcrumb {
-    padding: 0.875rem;
+    padding: .875rem;
   }
 
   .top_btn {
-    padding-bottom: 0.9375rem;
+    padding-bottom: .875rem;
   }
 
   .travel_box .el-col div {

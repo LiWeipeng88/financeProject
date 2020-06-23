@@ -30,7 +30,7 @@
           </el-col>
           <el-col :span="3">
             <el-form-item label="职务">
-              <el-select v-model="addFormData.postid" placeholder="请选择职务" clearable @clear="clearSearch">
+              <el-select v-model="keyWordForm.postid" placeholder="请选择职务" clearable @clear="clearSearch">
                 <el-option v-for="item in postLists" :key="item.postid" :label="item.postname" :value="item.postid">
                 </el-option>
               </el-select>
@@ -91,9 +91,9 @@
           </el-table-column>
           <el-table-column label="工号" prop="empcode">
           </el-table-column>
-          <el-table-column label="职称" prop="postname">
+          <el-table-column label="职称" prop="deptname">
           </el-table-column>
-          <el-table-column label="职务" prop="posttitle">
+          <el-table-column label="职务" prop="postname">
           </el-table-column>
           <el-table-column label="联系电话" prop="emptel">
           </el-table-column>

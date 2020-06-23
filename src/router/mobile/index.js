@@ -8,6 +8,8 @@ import Everyday from "@/views/mobile/everyday.vue";
 import Travel from "@/views/mobile/travel.vue";
 import Borrow from "@/views/mobile/borrow.vue";
 import Welcome from "@/views/mobile/welcome.vue";
+import BorrowPage from "@/views/mobile/borrowViews/borrowPage.vue";
+import HandBorrowPage from "@/views/mobile/borrowViews/handBorrowPage.vue";
 
 Vue.use(Router);
 
@@ -27,32 +29,44 @@ let router = new Router({
       path: "/home",
       name: "home",
       component: Home,
-      redirect: "/Welcome"
-    },
-    {
-      path: "/welcome",
-      name: "welcome",
-      component: Welcome
-    },
-    {
-      path: "/table",
-      name: "Table",
-      component: Table
-    },
-    {
-      path: "/expendTavel/queryPage",
-      name: "Travel",
-      component: Travel
-    },
-    {
-      path: "/expendLoan/queryPage",
-      name: "Borrow",
-      component: Borrow
-    },
-    {
-      path: "/expendDaily/queryPage",
-      name: "Everyday",
-      component: Everyday
+      redirect: "/Welcome",
+      children: [
+        {
+          path: "/welcome",
+          name: "welcome",
+          component: Welcome
+        },
+        {
+          path: "/table",
+          name: "Table",
+          component: Table
+        },
+        {
+          path: "/expendTavel/queryPage",
+          name: "Travel",
+          component: Travel
+        },
+        {
+          path: "/expendLoan/queryPage",
+          name: "Borrow",
+          component: Borrow
+        },
+        {
+          path: "/expendDaily/queryPage",
+          name: "Everyday",
+          component: Everyday
+        },
+        {
+          path: "/borrowPage",
+          name: "BorrowPage",
+          component: BorrowPage
+        },
+        {
+          path: "/handBorrowPage",
+          name: "HandBorrowPage",
+          component: HandBorrowPage
+        }
+      ]
     }
   ]
 });

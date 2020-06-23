@@ -340,7 +340,7 @@
         </el-form-item>
         <el-form-item label="分管校长" label-width="80px">
           <el-select v-model="submitValue" placeholder="请选择分管校长" @change="submitFormChange">
-            <el-option v-for="item in rectorList" :key="item.postid" :label="item.postname" :value="item.postname">
+            <el-option v-for="item in rectorList" :key="item.empcard" :label="item.empname" :value="item.empcard">
             </el-option>
           </el-select>
         </el-form-item>
@@ -1009,7 +1009,7 @@
       async getRectorList() {
         const {
           data: res
-        } = await this.$axios.post('/jobpost/getFG')
+        } = await this.$axios.post('/employee/queryFg')
         this.rectorList = JSON.parse(res)
       },
       // 分管校长选择

@@ -1,15 +1,20 @@
-employee ":[{"
-empid ":"
-3123213 ","
-empname ":"
-tom ","
-dept ":{"
-deptid ":"
-b1ceab0b72a21a23 "},"
-jobpost ":{"
-postid ":"
-544098 b91c196caa1dbaa9 "},"
-state ":"
-1 "}],"
-pagenum ":"
-3 "}"
+{
+  "department": [{
+    "deptid": "115413fb95d34c85ade3dc90df035f03",
+    "deptcode": "01",
+    "deptname": "党政办",
+    "deptseal": "",
+    "parentcode": "0",
+    "diclevel": "1",
+    "dicsort": "1",
+    "isflag": "0",
+    "remark": "sasasa",
+    "ptlist": [{
+      "protypeid": "dc99e28665154261911df950875f65b6"
+    }, {
+      "protypeid": "d92a4d43f6f6407eb9994715493f6b43"
+    }, {
+      "protypeid": "d9f6bf6601774f8e9bf8a2233fe2c28a"
+    }]
+  }]
+}

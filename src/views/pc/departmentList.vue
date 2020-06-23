@@ -12,6 +12,10 @@
       <!-- 表格区域 -->
       <tree-table :data="dataList" :columns="columns" :selection-type="false" :expand-type="false" border
                   :show-row-hover="false">
+        <template slot="project" slot-scope="scope">
+          <el-button size="mini" plain type="info" icon="el-icon-view" @click="proLookBtn(scope.row.deptid)">查看
+          </el-button>
+        </template>
         <!-- 自定义印章插槽 -->
         <template slot="deptseal" slot-scope="scope">
           <img :src="scope.row.deptseal" alt="" style="width: 60px; height: 60px;">
@@ -26,15 +30,21 @@
     <el-dialog title="添加部门" :visible.sync="addDepartmentDialogVisible" width="50%">
       <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="100px">
         <el-form-item label="部门编码" prop="deptcode">
-          <el-input v-model="addForm.deptcode"></el-input>
+          <el-input v-model="addForm.deptcode" placeholder="请输入部门编码"></el-input>
         </el-form-item>
         <el-form-item label="部门名称" prop="deptname">
-          <el-input v-model="addForm.deptname"></el-input>
+          <el-input v-model="addForm.deptname" placeholder="请输入部门名称"></el-input>
         </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="addForm.remark"></el-input>
+
+        <el-form-item label="部门项目" prop="ptlist">
+          <el-cascader placeholder="请选择部门项目" v-model="addForm.ptlist" :options="allProList" :props="optionProps"
+                       :show-all-levels="false" clearable>
+          </el-cascader>
         </el-form-item>
-        <el-form-item label="部门印章">
+        <el-form-item label="备注信息" prop="remark">
+          <el-input v-model="addForm.remark" placeholder="请输入备注信息"></el-input>
+        </el-form-item>
+        <el-form-item label="部门印章" prop="deptseal">
           <el-upload class="avatar-uploader" :action="uploadURL" :show-file-list="false"
                      :on-success="handleAvatarSuccess">
             <img v-if="this.addForm.deptseal" :src="this.addForm.deptseal" class="avatar">
@@ -48,7 +58,7 @@
       </span>
     </el-dialog>
     <!-- 编辑部门对话框 -->
-    <el-dialog title="提示" :visible.sync="editDeptDialog" width="50%" :before-close="handleEditDeptDialog">
+    <el-dialog title="修改部门信息" :visible.sync="editDeptDialog" width="50%" :before-close="handleEditDeptDialog">
       <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="100px">
 
         <el-form-item label="部门排序" prop="dicsort">
@@ -60,7 +70,12 @@
         <el-form-item label="部门名称" prop="deptname">
           <el-input v-model="editForm.deptname"></el-input>
         </el-form-item>
-        <el-form-item label="备注" prop="remark">
+        <el-form-item label="部门项目" prop="ptlist">
+          <el-cascader placeholder="请选择部门项目" v-model="editForm.ptlist" :options="allProList" :props="optionProps"
+                       :show-all-levels="false" clearable>
+          </el-cascader>
+        </el-form-item>
+        <el-form-item label="备注信息" prop="remark">
           <el-input v-model="editForm.remark"></el-input>
         </el-form-item>
         <el-form-item label="部门印章">
@@ -76,7 +91,13 @@
         <el-button type="primary" @click="editDeptDataBtn">确 定</el-button>
       </span>
     </el-dialog>
-
+    <!-- 查看部门项目 -->
+    <el-dialog title="部门项目" :visible.sync="lookProDialog" width="30%">
+      <el-tree :data="lookLists" :props="defaultProps"></el-tree>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="lookProDialog=false">关 闭</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -85,6 +106,20 @@
   export default {
     data() {
       return {
+        defaultProps: {
+          children: 'children',
+          label: 'proname'
+        },
+        lookLists: [],
+        lookProDialog: false,
+        optionProps: {
+          value: 'protypeid',
+          label: 'proname',
+          children: 'children',
+          multiple: true,
+        },
+        // 所有部门列表数据
+        allProList: [],
         // 编辑对话框隐藏
         editDeptDialog: false,
         // 发票上传地址
@@ -96,7 +131,8 @@
           deptcode: "",
           deptname: "",
           deptseal: "",
-          remark: ''
+          remark: '',
+          ptlist: []
         },
         addFormRules: {
           deptcode: [{
@@ -111,8 +147,13 @@
           }],
           deptseal: [{
             required: true,
-            message: "请输入部门简介",
-            trigger: "blur"
+            message: "请上传部门印章",
+            trigger: "change"
+          }],
+          ptlist: [{
+            required: true,
+            message: "请选择部门项目",
+            trigger: "change"
           }],
         },
         editForm: {
@@ -122,6 +163,9 @@
           deptseal: "",
           remark: '',
           dicsort: '',
+          ptlist: [
+            // ["652ef31194ea46c9b513540f7c3e7528", "c23dd0dc893f4a5a83a91cad36d5a8a9"]
+          ]
         },
         editFormRules: {
           deptcode: [{
@@ -134,16 +178,6 @@
             message: "请输入部门名称",
             trigger: "blur"
           }],
-          remark: [{
-            required: true,
-            message: "请输入备注信息",
-            trigger: "blur"
-          }],
-          dicsort: [{
-            required: true,
-            message: "请输入部门排序",
-            trigger: "blur"
-          }]
         },
         //表格标题数据
         columns: [{
@@ -165,6 +199,7 @@
             headerAlign: 'center',
             align: 'center'
           },
+
           {
             label: "印章",
             // 表示当前列定义为模板列
@@ -177,6 +212,13 @@
           {
             label: "备注",
             prop: "remark",
+          },
+          {
+            label: '项目',
+            type: "template",
+            template: "project",
+            headerAlign: 'center',
+            align: 'center'
           },
           {
             label: '操作',
@@ -212,7 +254,15 @@
       },
       // 部门新增按钮
       proAddTopBtn() {
+        this.getAllProList()
         this.addDepartmentDialogVisible = true
+      },
+      // 获取所有项目列表
+      async getAllProList() {
+        const {
+          data
+        } = await this.$axios.post('/projectType/queryAllProList')
+        this.allProList = JSON.parse(data)
       },
       // 部门编辑按钮
       proEditDialog(row) {
@@ -226,34 +276,54 @@
       },
       // 部门添加确定按钮
       addDepartmentBtn() {
-        let department = [{
-          deptid: "",
-          deptcode: this.addForm.deptcode,
-          deptname: this.addForm.deptname,
-          deptseal: this.addForm.deptseal,
-          parentcode: "0",
-          diclevel: "1",
-          dicsort: "",
-          isflag: "0",
-          remark: this.addForm.remark
-        }]
-        this.$axios.post('/department/webDeptSave', {
-          department
-        }).then(res => {
-          console.log(res.data)
-          const data = JSON.parse(res.data)
-          if (data.retCode == 0) {
-            this.addDepartmentDialogVisible = false
-            this.$message.success('部门添加成功！')
-            this.getQueryList()
-          } else {
-            this.addDepartmentDialogVisible = false
-            this.$message.error('部门添加失败！')
-          }
+        this.$refs.addFormRef.validate((valid) => {
+          if (!valid) return this.$message.error('请先填写部门信息！')
+          let protypeidList = []
+          this.addForm.ptlist.forEach(r => {
+            r.forEach(e => {
+              protypeidList.push(e)
+            })
+          })
+          var ListArr = protypeidList.filter(function (element, index, self) {
+            return self.indexOf(element) === index;
+          });
+          let ptlist = []
+          ListArr.map(v => ptlist.push({
+            protypeid: v
+          }))
+          console.log(ptlist);
+          let department = [{
+            deptid: "",
+            deptcode: this.addForm.deptcode,
+            deptname: this.addForm.deptname,
+            deptseal: this.addForm.deptseal,
+            parentcode: "0",
+            diclevel: "1",
+            dicsort: "",
+            isflag: "0",
+            remark: this.addForm.remark,
+            ptlist
+          }]
+          this.$axios.post('/department/webDeptSave', {
+            department
+          }).then(res => {
+            console.log(res.data)
+            const data = JSON.parse(res.data)
+            if (data.retCode == 0) {
+              this.addDepartmentDialogVisible = false
+              this.$message.success('部门添加成功！')
+              this.getQueryList()
+            } else {
+              this.addDepartmentDialogVisible = false
+              this.$message.error('部门添加失败！')
+            }
+          })
         })
       },
       proEditBtn(row) {
         console.log(row);
+        this.getAllProList()
+        this.getProLists(row.deptid)
         this.editForm.deptcode = row.deptcode
         this.editForm.deptid = row.deptid
         this.editForm.deptname = row.deptname
@@ -272,6 +342,22 @@
         console.log(this.editForm.deptseal);
       },
       editDeptDataBtn() {
+        console.log(this.editForm);
+
+        let protypeidList = []
+        this.editForm.ptlist.forEach(r => {
+          r.forEach(e => {
+            protypeidList.push(e)
+          })
+        })
+        var ListArr = protypeidList.filter(function (element, index, self) {
+          return self.indexOf(element) === index;
+        });
+        let ptlist = []
+        ListArr.map(v => ptlist.push({
+          protypeid: v
+        }))
+        console.log(ptlist);
         let department = [{
           deptid: this.editForm.deptid,
           deptcode: this.editForm.deptcode,
@@ -281,7 +367,8 @@
           diclevel: "1",
           dicsort: this.editForm.dicsort,
           isflag: "0",
-          remark: this.editForm.remark
+          remark: this.editForm.remark,
+          ptlist
         }]
         this.$axios.post('/department/webDeptSave', {
           department
@@ -297,6 +384,41 @@
             this.$message.error('部门信息修改失败！')
           }
         })
+      },
+      proLookBtn(deptid) {
+        this.getProLists(deptid)
+        this.lookProDialog = true
+      },
+      async getProLists(deptid) {
+        const {
+          data
+        } = await this.$axios.post('/department/queryDeptPro', {
+          deptid
+        })
+        this.lookLists = JSON.parse(data);
+        let lookArr = []
+        this.lookLists.map(e => {
+          e.children.map(v => {
+            lookArr.push(v.protypeid)
+          })
+        })
+        let Array = lookArr.toString().split(',')
+        console.log(Array);
+
+        function group(array, subGroupLength) {
+          let index = 0;
+          let newArray = [];
+          while (index < array.length) {
+            newArray.push(array.slice(index, index += subGroupLength));
+          }
+          return newArray;
+        }
+        var groupedArray = group(Array, 1);
+        console.log(groupedArray);
+
+        this.editForm.ptlist = groupedArray
+        console.log(this.editForm.ptlist);
+
       }
     }
   };
@@ -321,7 +443,9 @@
     border-color: #409EFF;
   }
 
-
+  .el-cascader {
+    width: 100%;
+  }
 
   .avatar-uploader-icon {
     font-size: 28px;

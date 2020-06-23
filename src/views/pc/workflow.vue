@@ -192,6 +192,7 @@
           data: res
         } = await this.$axios.post("/flowpost/queryList");
         const WorkData = JSON.parse(res);
+        console.log(WorkData)
         this.dailybxData = WorkData.dailybx;
         this.flowysData = WorkData.flowys;
         this.travelbxData = WorkData.travelbx;

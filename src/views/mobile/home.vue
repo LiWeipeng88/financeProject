@@ -12,7 +12,7 @@
               <i class="el-icon-s-claim"></i>
               <span>{{item.pname}}</span>
             </template>
-            <el-menu-item :index="item.purl" v-for="item in twoNavList" :key="item.pid">
+            <el-menu-item @click="handleNavBtn" :index="item.purl" v-for="item in twoNavList" :key="item.pid">
               <template slot="title">
                 <i class="el-icon-menu"></i>
                 <span>{{item.pname}}</span>
@@ -22,6 +22,7 @@
         </el-menu>
       </div>
     </van-popup>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -77,6 +78,9 @@
         this.twoNavList = data.permissions
         console.log(this.twoNavList)
       },
+      handleNavBtn() {
+        this.show = false;
+      }
     }
   }
 

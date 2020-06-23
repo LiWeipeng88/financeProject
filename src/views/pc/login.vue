@@ -30,8 +30,6 @@
       </div>
     </section>
     <div class="footer">西安纳学电子科技有限责任公司 @2020-6</div>
-    <!-- <mt-button type="danger">danger</mt-button>
-    <el-button type="info">信息按钮</el-button> -->
   </div>
 </template>
 <script>
@@ -93,8 +91,10 @@
           this.emptel = data.user.admin[0].ulogin
           let tokenStr = data.tokenStr
           sessionStorage.setItem("token", data.tokenStr);
-
           this.getUloginName()
+          this.$message.success('登录成功！')
+        } else if (data.retCode == 1) {
+          this.$message.error('用户名或密码错误！')
         }
       },
       resetForm() {
@@ -109,6 +109,8 @@
         } = await this.$axios.post('/employee/queryEmpByTel', {
           emptel
         })
+        console.log(res);
+
         let data = JSON.parse(res);
         let ulogin = data.empcard || 'admin'
         let empname = data.empname || 'admin'

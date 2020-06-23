@@ -15,8 +15,10 @@
       <el-tabs type="border-card">
         <!-- 已申请列表视图 -->
         <el-tab-pane>
+          <router-link to="/expendDaily/dayApply">
+            <el-button type="primary">报销申请入口</el-button>
+          </router-link>
           <span slot="label"><i class="el-icon-date"></i> 已申请列表</span>
-          <el-button type="primary" @click="applyInBtn">报销申请入口</el-button>
           <el-table :data="DayMoneyList" border style="width: 100%">
             <el-table-column prop="formcode" label="表单编号" align="center">
             </el-table-column>
@@ -93,7 +95,6 @@
                          layout="total, sizes, prev, pager, next, jumper" :total="+Waittotal">
           </el-pagination>
         </el-tab-pane>
-
         <el-tab-pane>
           <span slot="label"><i class="el-icon-date"></i> 已办理列表</span>
           <el-table :data="DayAppleFinishList" border style="width: 100%">
@@ -125,84 +126,6 @@
         </el-tab-pane>
       </el-tabs>
     </el-card>
-    <!-- 报销申请入口对话框 -->
-    <el-dialog title="报销申请明细填写" :visible.sync="applyInDialog" width="50%" :before-close="handleApplyInClose">
-      <el-form :model="everydayForm" ref="everydayFormRef" :rules="everydayFormRules">
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <el-form-item prop="deptid" label="部门名称:" style="width: 100%;">
-              <el-input v-model="everydayForm.deptname" placeholder="请输入部门名称"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item prop="protypeid" label="项目编号:">
-              <el-cascader :props="defaultData" :show-all-levels="false" v-model="everydayForm.protypeid"
-                           :options="chooseProList" @change="handleProList">
-              </el-cascader>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="报销金额:" prop="paymoney">
-              <el-input type="number" v-model="everydayForm.paymoney" placeholder="请输入报销金额"></el-input>
-            </el-form-item>
-          </el-col>
-
-        </el-row>
-        <el-row :gutter="20">
-
-          <el-col :span="8">
-            <el-form-item label="报销标识:" prop="isflag">
-              <el-select v-model="everydayForm.isflag" placeholder="请选择" @change="isflagchange" style="width: 100%;">
-                <el-option v-for="(item, index) in isflagoptions" :key="item.index" :label="item.label"
-                           :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="16">
-            <el-form-item label="报销要求:" prop="paydemand">
-              <el-input v-model="everydayForm.paydemand" placeholder="请输入报销要求"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="24">
-            <el-form-item label="内容摘要:" prop="expendcontent">
-              <el-input v-model="everydayForm.expendcontent" placeholder="请输入内容摘要"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="24">
-            <!-- <el-button @click="" type="primary" size="mini"><i class="el-icon-plus"></i> 添加附件</el-button> -->
-            <el-form>
-              <el-form-item>
-                <div class="upload_img">
-                  <el-upload class="upload-demo" :action="uploadURL" :on-preview="handlePreview"
-                             :on-remove="handleRemove" :before-remove="beforeRemove" multiple :limit="6"
-                             :on-exceed="handleExceed" :on-success="uploadFileSuccess" :file-list="fileDataList">
-                    <el-button size="mini" type="primary"><i class="el-icon-plus"></i> 添加附件</el-button> <span slot="tip"
-                          class="el-upload__tip"> 只能上传jpg/png/pdf文件</span>
-                  </el-upload>
-                </div>
-              </el-form-item>
-
-            </el-form>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="24">
-            <el-form-item label="描述:" prop="dailydesc">
-              <el-input v-model="everydayForm.dailydesc" placeholder="请输入描述"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="applyInDialog = false">取 消</el-button>
-        <el-button type="primary" @click="addEverydayForm">确 认</el-button>
-      </span>
-    </el-dialog>
     <!-- 发票上传对话框事件 -->
     <el-dialog title="发票上传" :visible.sync="NoteUploadDV" width="50%">
       <el-button @click="addNoteData" type="primary" size="mini">
@@ -237,7 +160,7 @@
         </el-form-item>
         <el-form-item label="分管校长：" label-width="90px">
           <el-select v-model="submitForm.fgxz" placeholder="请选择分管校长">
-            <el-option v-for="item in rectorList" :key="item.postid" :label="item.postname" :value="item.postid">
+            <el-option v-for="item in rectorList" :key="item.empcard" :label="item.empname" :value="item.empcard">
             </el-option>
           </el-select>
         </el-form-item>
@@ -545,17 +468,29 @@
   export default {
     data() {
       return {
+        // 标识选择数据
+        isflagoptions: [{
+            value: "0",
+            label: "办公业务"
+          },
+          {
+            value: "1",
+            label: "教学业务"
+          },
+          {
+            value: "2",
+            label: "学生业务"
+          },
+          {
+            value: "3",
+            label: "科研业务"
+          }
+        ],
+        isCascader: false,
         isLoading: false,
-        chooseProList: [],
-        defaultData: { //联级选择
-          value: 'protypeid',
-          label: 'proname',
-          children: 'children'
-        },
         // 附件数组
         fileListS: [],
-        // 附件数据暂存
-        fileDataList: [],
+
         editDataDialog: false,
         // 修改基础信息表单
         editInfoForm: {},
@@ -603,57 +538,10 @@
         noteDataList: [],
         // 发票对话框隐藏
         NoteUploadDV: false,
-        // 报销申请参数校验规则
-        everydayFormRules: {
-          deptid: [{
-            required: true,
-            message: '请输入部门编号',
-            trigger: 'blur'
-          }],
-          protypeid: [{
-            required: true,
-            message: '请输入项目编号',
-            trigger: 'blur'
-          }],
-          paymoney: [{
-            required: true,
-            message: '请输入报销金额',
-            trigger: 'blur'
-          }],
-          paydemand: [{
-            required: true,
-            message: '请输入报销要求',
-            trigger: 'blur'
-          }],
-          isflag: [{
-            required: true,
-            message: '请选择报销标识',
-            trigger: 'change'
-          }],
-          expendcontent: [{
-            required: true,
-            message: '请输入内容摘要',
-            trigger: 'blur'
-          }],
-          dailydesc: [{
-            required: true,
-            message: '请输入描述',
-            trigger: 'blur'
-          }]
-        },
+
         // 报销申请对话框隐藏
         applyInDialog: false,
-        // 报销申请参数填写
-        everydayForm: {
-          protypeid: '743375a5dcd24ff09997dfe4fc8b1d8a',
-          deptid: '',
-          deptname: '',
-          expendcontent: '',
-          paymoney: '',
-          dailydesc: '',
-          paydemand: '',
-          isflag: '',
-        },
+
         isflag: '',
         // 分管校长数据
         rectorList: [],
@@ -669,24 +557,7 @@
         // 已办理数据列表
         DayAppleFinishList: [],
         Finishtotal: '0',
-        // 标识选择数据
-        isflagoptions: [{
-            value: "0",
-            label: "办公业务"
-          },
-          {
-            value: "1",
-            label: "教学业务"
-          },
-          {
-            value: "2",
-            label: "学生业务"
-          },
-          {
-            value: "3",
-            label: "科研业务"
-          }
-        ],
+
         cashier: '',
         // 付款凭证预览临时路径
         dialogImageUrl: '',
@@ -706,30 +577,8 @@
       this.getDayAppleWaitList()
       // 调用已办理列表数据获取
       this.getDayAppleFinishList()
-      let userInfo = sessionStorage.getItem('userInfo')
-      let userInfoData = JSON.parse(userInfo)
-      this.everydayForm.deptid = userInfoData.deptid
-      this.everydayForm.deptname = userInfoData.deptname
-      this.postidBtn = userInfoData.postid
     },
     methods: {
-      // 报销申请入口按钮事件
-      async applyInBtn() {
-        let userInfo = sessionStorage.getItem('userInfo')
-        let userInfoData = JSON.parse(userInfo)
-        let deptid = userInfoData.deptid
-        // 获取部门项目层级列表
-        const result = await this.$axios.post('/projectType/queryDeptProList', {
-          deptid
-        })
-        this.chooseProList = JSON.parse(result.data)
-        console.log(this.chooseProList)
-        this.applyInDialog = true;
-      },
-      // 项目选择事件
-      handleProList(val) {
-        console.log(val)
-      },
       // 分页事件
       handleEverydayPageChange(newpage) {
         this.pagenum = newpage - 1
@@ -739,64 +588,15 @@
       handleApplyInClose() {
         this.applyInDialog = false;
       },
-      // 标识选择事件
-      isflagchange() {},
+
       // 获取分管校长数据
       async getRectorList() {
         const {
           data: res
-        } = await this.$axios.post('/jobpost/getFG')
+        } = await this.$axios.post('/employee/queryFg')
         this.rectorList = JSON.parse(res)
       },
-      // 报销申请对话框确认按钮事件
-      addEverydayForm() {
-        console.log(this.fileDataList)
-        this.fileListS = []
-        let fileDataList = this.fileDataList.map(e => {
 
-          let obj = {}
-          let res = JSON.parse(e.response)
-          obj.picpath = res.relationPath
-          obj.recname = res.filename
-          obj.isflag = "1"
-          obj.recid = ""
-          obj.expendid = ""
-          obj.receiptcode = ""
-          this.fileListS.push(obj)
-
-          console.log('obj', obj)
-        })
-        console.log('fileListS', this.fileListS)
-        this.$refs.everydayFormRef.validate(async valid => {
-          let protypeid = this.everydayForm.protypeid.pop()
-          if (!valid) return this.$message.error('请完善申请信息！');
-          let expendDaily = [{
-            dailyid: "",
-            proType: {
-              protypeid: protypeid.toString()
-            },
-            dept: {
-              deptid: this.everydayForm.deptid
-            },
-            expendcontent: this.everydayForm.expendcontent,
-            paymoney: this.everydayForm.paymoney,
-            dailydesc: this.everydayForm.dailydesc,
-            paydemand: this.everydayForm.paydemand,
-            isflag: this.everydayForm.isflag,
-            expendReceiptlist: this.fileListS
-          }];
-          let empcard = sessionStorage.getItem('ulogin')
-          const {
-            data: res
-          } = await this.$axios.post('/expendDaily/webSaveDaily', {
-            expendDaily,
-            empcard,
-          })
-          this.applyInDialog = false
-          this.$message.success('申请信息填写成功！');
-          this.getDayMoneyList()
-        })
-      },
       // 获取已申请数据列表
       async getDayMoneyList() {
         let empcard = sessionStorage.getItem('ulogin')
@@ -940,7 +740,6 @@
         console.log('数据获取', row)
         this.cashier = row.desc
         let dailyid = row.dailyid
-
         this.expendDaily.dailyid = row.dailyid
         this.expendDaily.taskID = row.taskID
         this.getDailyInfo(dailyid)
@@ -1040,7 +839,7 @@
       // 查看按钮事件
       lookDayAppleFinishBtn(row) {
         console.log(row)
-        const dailyid = row.dailyid
+        let dailyid = row.dailyid
         this.getFindCommentList(dailyid)
         this.getDailyInfo(dailyid)
         this.lookDayDialog = true
@@ -1084,39 +883,6 @@
         })
         console.log(this.dayFpList)
         console.log('editInfoForm', this.editInfoForm)
-      },
-      handleRemove(file, fileList) {
-        console.log(fileList)
-        this.fileDataList = fileList
-      },
-      handlePreview(file) {
-        let res = JSON.parse(file.response)
-        let filePath = res.relationPath
-        let filePathR = res.filename
-        console.log(filePath, filePathR);
-        if (filePathR.includes('.pdf')) {
-          const elink = document.createElement('a');
-          elink.href = this.imgURL + filePath; //basePdfUrl pdf.js插件的预览
-          elink.target = '_block';
-          document.body.appendChild(elink);
-          elink.click();
-          document.body.removeChild(elink);
-        } else {
-          window.open(
-            this.imgURL + filePath
-          )
-        }
-      },
-      handleExceed(files, fileList) {
-        this.$message.warning(
-          `当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
-      },
-      beforeRemove(file, fileList) {
-        return this.$confirm(`确定移除 ${ file.name }？`);
-      },
-      uploadFileSuccess(file, fileList) {
-        console.log(fileList)
-        this.fileDataList.push(fileList)
       },
       handlePictureRemove(file, fileList) {
         let voucherDataRemove = JSON.parse(file.response).relationPath
@@ -1166,7 +932,8 @@
           });
 
         });
-      }
+      },
+
     },
   }
 
@@ -1258,5 +1025,15 @@
     color: #333;
     text-decoration: none;
   }
+
+  /* .xiangmu {
+    position: relative;
+  }
+
+  .el-cascader-panel {
+    position: absolute;
+    top: 20px;
+    left: 0;
+  } */
 
 </style>

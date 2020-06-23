@@ -15,14 +15,14 @@
           <el-col :span="12">
             <el-menu @open="handleOpen" :default-active="$router.path" router unique-opened background-color="#545c64"
                      text-color="#fff" active-text-color="#409eff">
-              <el-submenu :index="item.pid" v-for="item in oneNavList" :key="item.pid">
+              <el-submenu :index="item.pid" v-for="(item, index) in oneNavList" :key="item.pid">
                 <template slot="title">
-                  <i class="el-icon-s-claim"></i>
+                  <i :class="iconList[index]"></i>
                   <span>{{item.pname}}</span>
                 </template>
                 <el-menu-item :index="item.purl" v-for="item in twoNavList" :key="item.pid">
                   <template slot="title">
-                    <i class="el-icon-menu"></i>
+                    <i class="el-icon-s-operation"></i>
                     <span>{{item.pname}}</span>
                   </template>
                 </el-menu-item>
@@ -46,7 +46,8 @@
         pid: '',
         oneNavList: [],
         twoNavList: [],
-        loginName: ''
+        loginName: '',
+        iconList: ['el-icon-s-tools', 'el-icon-info', 'el-icon-s-order', 'el-icon-s-claim']
       }
     },
     created() {
@@ -110,7 +111,7 @@
 
   .el-header .logo {
     color: #fff;
-    font-size: 26px;
+    font-size: 24px;
     font-weight: bold;
   }
 

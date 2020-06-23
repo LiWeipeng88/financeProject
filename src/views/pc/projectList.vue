@@ -24,90 +24,49 @@
         </template>
         <!-- 操作自定义插槽 -->
         <template slot="operation" slot-scope="scope">
-          <el-button size="mini" type="danger" icon="el-icon-edit" @click="proEditDialog(scope.row)">编辑</el-button>
+
           <el-button size="mini" type="primary" icon="el-icon-plus" v-if="scope.row.parentcode == 0"
                      @click="proAddDialog(scope.row)">添加子级</el-button>
+          <el-button size="mini" type="warning" icon="el-icon-edit" @click="proEditDialog(scope.row)">编辑
+          </el-button>
+          <el-button size="mini" type="danger" icon="el-icon-delete" @click="proDeleteBtn(scope.row.protypeid)">删除
+          </el-button>
         </template>
       </tree-table>
     </el-card>
     <!-- 添加一级项目分类 -->
     <el-dialog title="提示" :visible.sync="proAddTopDialog" width="40%" :before-close="handleproAddTop">
-      <el-form :model="proAddTopForm" :rules="proAddTopFormRules" ref="proAddTopFormRef">
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="项目名称" prop="proname">
-              <el-input v-model="proAddTopForm.proname"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="项目编码" prop="procode">
-              <el-input v-model="proAddTopForm.procode"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="预算金额" prop="remark">
-              <el-input v-model="proAddTopForm.remark"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="是否末级" prop="isflag">
-              <el-select v-model="proAddTopForm.isflag" placeholder="请选择">
-                <el-option v-for="item in isFlagOptios" :key="item.value" :label="item.label" :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
+      <el-form style="padding: 0px 40px;" :model="proAddTopForm" :rules="proAddTopFormRules" ref="proAddTopFormRef">
+        <el-form-item label="项目名称" prop="proname">
+          <el-input v-model="proAddTopForm.proname"></el-input>
+        </el-form-item>
+        <el-form-item label="项目编码" prop="procode">
+          <el-input v-model="proAddTopForm.procode"></el-input>
+        </el-form-item>
+        <el-form-item label="是否末级" prop="isflag">
+          <el-select v-model="proAddTopForm.isflag" placeholder="请选择">
+            <el-option v-for="item in isFlagOptios" :key="item.value" :label="item.label" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="proAddTopDialog = false">取 消</el-button>
+        <el-button @click="handleproAddTop">取 消</el-button>
         <el-button type="primary" @click="proAddTopFormBtn">确 定</el-button>
       </span>
     </el-dialog>
     <!-- 添加子级项目对话框 -->
     <el-dialog title="添加项目" :visible.sync="proAddDialogVisible" width="40%" :before-close="handleProAddClose">
-      <el-form :model="proAddForm" :rules="proAddFormRules" ref="proAddFormRef">
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="上级分类" prop="name">
-              <el-input v-model="proAddForm.topProname" disabled></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="部门名称" prop="name">
-              <el-input v-model="proAddForm.deptname" disabled></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="项目名称" prop="proname">
-              <el-input v-model="proAddForm.proname"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="项目编码" prop="procode">
-              <el-input v-model="proAddForm.procode"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="预算金额" prop="remark">
-              <el-input v-model="proAddForm.remark"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="是否末级" prop="remark">
-              <el-select v-model="proAddForm.isflag" placeholder="请选择">
-                <el-option v-for="item in isFlagOptios" :key="item.value" :label="item.label" :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
+      <el-form style="padding: 0px 40px;" :model="proAddForm" :rules="proAddFormRules" ref="proAddFormRef">
+        <el-form-item label="上级分类" prop="name">
+          <el-input v-model="proAddForm.topProname" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="项目名称" prop="proname">
+          <el-input v-model="proAddForm.proname"></el-input>
+        </el-form-item>
+        <el-form-item label="项目编码" prop="procode">
+          <el-input v-model="proAddForm.procode"></el-input>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="proAddDialogVisible = false">取 消</el-button>
@@ -117,13 +76,13 @@
     <!-- 编辑项目对话框 -->
     <el-dialog title="提示" :visible.sync="proEditDialogVisible" width="50%" :before-close="handleProEditClose">
       <el-form :model="proEditForm" :rules="proEditFormRules" ref="proEditFormRef" label-width="100px">
-        <el-form-item label="活动名称" prop="name">
-          <el-input v-model="proEditForm.name"></el-input>
+        <el-form-item label="项目名称" prop="proname">
+          <el-input v-model="proEditForm.proname"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="proEditDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="proEditDialogVisible = false">确 定</el-button>
+        <el-button @click="handleProEditClose">取 消</el-button>
+        <el-button type="primary" @click="proEditFormBtn">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -132,10 +91,16 @@
   export default {
     data() {
       return {
+        isFlagOptios: [{
+          value: '1',
+          label: '是'
+        }, {
+          value: '0',
+          label: '否'
+        }],
         proAddTopForm: {
           proname: '',
           procode: '',
-          remark: '',
           isflag: ''
         },
         proAddTopFormRules: {
@@ -147,11 +112,6 @@
           procode: [{
             required: true,
             message: '请输入项目编码',
-            trigger: 'blur'
-          }],
-          remark: [{
-            required: true,
-            message: '请输入预算金额',
             trigger: 'blur'
           }],
           isflag: [{
@@ -175,7 +135,6 @@
           ptlevel: "1",
           ptsort: "",
           isflag: "",
-          remark: "",
           state: ""
         },
         // 添加子级项目选择父级ID数组
@@ -192,16 +151,6 @@
             message: '请输入项目编码',
             trigger: 'blur'
           }],
-          remark: [{
-            required: true,
-            message: '请输入预算金额',
-            trigger: 'blur'
-          }],
-          remark: [{
-            required: true,
-            message: '请选择是否末级',
-            trigger: 'change'
-          }],
         },
         proAddProps: {
           value: 'protypeid',
@@ -209,22 +158,21 @@
           children: 'children',
           checkStrictly: true,
         },
-        // 末级选项选择
-        isFlagOptios: [{
-          value: '1',
-          label: '是'
-        }, {
-          value: '0',
-          label: '否'
-        }],
         // 编辑对话框隐藏
         proEditDialogVisible: false,
         // 编辑子级项目参数配置
         proEditForm: {
-          name: ''
+          proname: '',
+          protypeid: '',
         },
         // 编辑项目参数校验配置
-        proEditFormRules: {},
+        proEditFormRules: {
+          proname: [{
+            required: true,
+            message: '请输入项目名称',
+            trigger: 'blur'
+          }],
+        },
         protypeid: '',
         // 项目数据列表
         projectAllList: [],
@@ -245,12 +193,6 @@
             align: 'center'
           },
           {
-            label: "预算金额(单位:元)",
-            prop: "remark",
-            headerAlign: 'center',
-            align: 'center'
-          },
-          {
             label: "级别",
             // 表示当前列定义为模板列
             type: "template",
@@ -263,6 +205,7 @@
             label: '操作',
             type: 'template',
             template: 'operation',
+            width: '300px'
           }
         ],
       }
@@ -284,8 +227,8 @@
       // 编辑对话框按钮事件
       proEditDialog(row) {
         console.log(row)
-        this.proAddForm.topProname = row.proname
-        this.proAddForm.parentcode = row.protypeid
+        this.proEditForm.proname = row.proname
+        this.proEditForm.protypeid = row.protypeid
         this.proEditDialogVisible = true
       },
       // 编辑对话框关闭事件
@@ -307,7 +250,7 @@
           let project = [{
               protypeid: "",
               dept: {
-                deptid: this.proAddForm.deptid
+                deptid: ''
               },
               procode: this.proAddTopForm.procode,
               proname: this.proAddTopForm.proname,
@@ -315,7 +258,7 @@
               ptlevel: '1',
               ptsort: '0',
               isflag: this.proAddTopForm.isflag,
-              remark: this.proAddTopForm.remark,
+              remark: '',
               state: "1",
             }],
             empcard = sessionStorage.getItem('ulogin')
@@ -374,15 +317,15 @@
           let project = [{
               protypeid: "",
               dept: {
-                deptid: this.proAddForm.deptid
+                deptid: ''
               },
               procode: this.proAddForm.procode,
               proname: this.proAddForm.proname,
               parentcode: this.proAddForm.parentcode,
-              ptlevel: this.proAddForm.ptlevel,
+              ptlevel: '2',
               ptsort: '0',
               isflag: this.proAddForm.isflag,
-              remark: this.proAddForm.remark,
+              remark: '',
               state: "1",
             }],
             empcard = sessionStorage.getItem('ulogin')
@@ -405,9 +348,60 @@
           }).catch(err => {
             this.$message.error('项目添加失败！')
           })
-
         })
       },
+      async proDeleteBtn(protypeid) {
+        this.$confirm('此操作将永久删除该项目, 是否继续?', '系统提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(async () => {
+          const {
+            data
+          } = await this.$axios.post('/projectType/webProjectRemove', {
+            protypeid
+          })
+          const InfoData = JSON.parse(data)
+          console.log(InfoData);
+          if (InfoData.retCode == 0) {
+            this.$message.success('项目删除成功！')
+            this.getProjectAllList()
+          } else if (InfoData.retCode == 1) {
+            this.$message.error('项目删除失败！')
+          } else if (InfoData.retCode == 2) {
+            this.$message.error('有子级不能删除！')
+          }
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+
+      },
+      // 修改项目名称确认事件
+      async proEditFormBtn() {
+        let proname = this.proEditForm.proname
+        let protypeid = this.proEditForm.protypeid
+        const {
+          data
+        } = await this.$axios.post('/projectType/webProjectEdit', {
+          proname,
+          protypeid
+        })
+        const dataInfo = JSON.parse(data)
+        if (dataInfo.retCode == 0) {
+          this.$message.success('项目名称修改成功！')
+          this.getProjectAllList()
+          this.proEditDialogVisible = false
+        } else if (dataInfo.retCode == 1) {
+          this.$message.error('项目名称修改失败！')
+          this.proEditDialogVisible = false
+        } else {
+          this.$message.error('修改失败！')
+        }
+
+      }
     },
   }
 

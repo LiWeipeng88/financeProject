@@ -1,7 +1,5 @@
 <template>
   <div>
-    <!-- 菜单组件 -->
-    <topHome></topHome>
     <!-- 面包屑 -->
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
@@ -192,7 +190,6 @@
 </template>
 
 <script>
-  import top_home from './home.vue'
   import GLOBAL from '../../api/global_path'
   export default {
     data() {
@@ -260,10 +257,6 @@
         // 已办理数据第一页
         FinishPage: 1
       }
-    },
-
-    components: {
-      topHome: top_home
     },
     created() {
       // 调用获取已申请列表数据
@@ -505,11 +498,11 @@
 
 <style scoped>
   .el-breadcrumb {
-    padding: 0.875rem;
+    padding: .875rem;
   }
 
   .van-pagination {
-    margin-top: 0.875rem;
+    margin-top: .875rem;
 
   }
 
