@@ -135,13 +135,13 @@
           </el-col>
         </el-row>
         <el-row :gutter="20">
-          <el-col :span="7">
+          <el-col :span="12">
             <el-form-item label="项目选择">
               <el-cascader-panel @change="changeProList" :options="chooseProList" :props="defaultData">
               </el-cascader-panel>
             </el-form-item>
           </el-col>
-          <el-col :span="5">
+          <el-col :span="3">
             <el-form-item label="年度选择:">
               <el-date-picker value-format="yyyy" style="width: 100%;" v-model="ProDraList.year" type="year"
                               placeholder="选择年" @change="changeyear">
@@ -154,7 +154,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="9">
             <el-form-item label="附件上传:" style="margin-bottom: 4px;">
             </el-form-item>
             <div class="upload_img">
@@ -187,7 +187,7 @@
     <div style="display: flex; justify-content: space-between; align-items:center">
 
       <el-pagination @current-change="handleCurrentChange" :page-sizes="[5]" :page-size="100"
-                     layout="total, sizes, prev, pager, next, jumper" :total="+total">
+                     layout="total, sizes, pager" :total="+total">
       </el-pagination>
       <el-button type="primary" icon="el-icon-success
 " style="margin-right: 50px; margin-top: 10px;" @click="addborrowMoneyForm">提交申请
@@ -287,7 +287,7 @@
         },
         // 借款申请填写参数项
         borrowMoneyForm: {
-          protypeid: '743375a5dcd24ff09997dfe4fc8b1d8a',
+          protypeid: '',
           deptid: '',
           deptname: '',
           loanpay: '',
@@ -315,19 +315,23 @@
         // 报销标识数据
         flagOptions: [{
             value: "0",
-            label: "办公业务"
+            label: "办公项目"
           },
           {
             value: "1",
-            label: "教学业务"
+            label: "教学项目"
           },
           {
             value: "2",
-            label: "学生业务"
+            label: "学生项目"
           },
           {
             value: "3",
-            label: "科研业务"
+            label: "科研项目"
+          },
+          {
+            value: "4",
+            label: "教改项目"
           }
         ],
         // 借款用途的值控制人数，天数，地点是否显示的值
@@ -498,7 +502,7 @@
       },
       handleCurrentChange(newpage) {
         this.ProDraList.pagenum = newpage - 1
-        this.changeProList()
+        this.getProListData()
       },
       onSelectAll() {
         this.$refs.multipleTable.clearSelection();

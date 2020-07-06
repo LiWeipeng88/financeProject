@@ -16,11 +16,14 @@
       <el-tabs type="border-card">
         <el-tab-pane>
           <span slot="label"><i class="el-icon-date"></i> 已申请列表</span>
-          <el-button type="primary" @click="applyInBtn">报销申请入口</el-button>
+          <router-link to="/expendTavel/travelApply">
+            <el-button type="primary">报销申请入口</el-button>
+          </router-link>
+
           <el-table :data="travelList" border style="width: 100%">
             <el-table-column prop="formcode" label="表单编号" align="center">
             </el-table-column>
-            <el-table-column prop="protypeid" label="项目名称" align="center">
+            <el-table-column prop="protypename" label="项目名称" align="center">
             </el-table-column>
             <el-table-column prop="deptname" label="部门名称" align="center">
             </el-table-column>
@@ -35,7 +38,7 @@
                 <el-tag v-else size="medium">待处理</el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="操作" align="center">
+            <el-table-column label="操作" align="center" width="200">
               <template slot-scope="scope">
                 <el-button type="danger" size="mini" :disabled="scope.row.currentstep == 2 ? false :true "
                            icon="el-icon-circle-plus" @click="applyTravelBtn(scope.row)">行程
@@ -55,7 +58,7 @@
           <el-table :data="approveDataList" border style="width: 100%">
             <el-table-column prop="formcode" label="表单编号" align="center">
             </el-table-column>
-            <el-table-column prop="protypeid" label="项目名称" align="center">
+            <el-table-column prop="protypename" label="项目名称" align="center">
             </el-table-column>
             <el-table-column prop="deptname" label="部门名称" align="center">
             </el-table-column>
@@ -72,9 +75,16 @@
             </el-table-column>
             <el-table-column prop="desc" label="审核步骤" align="center">
             </el-table-column>
-            <el-table-column label="操作" align="center">
+            <el-table-column label="操作" align="center" width="200">
               <template slot-scope="scope">
-                <el-button type="primary" size="mini" icon="el-icon-success" @click="transactBtn(scope.row)">办理
+                <el-button type="primary" size="mini" v-if="scope.row.currentstep == 1" icon="el-icon-success"
+                           @click="transactBtn(scope.row)">办理
+                </el-button>
+                <el-button type="warning" size="mini" v-if="scope.row.currentstep == 0" icon="el-icon-edit"
+                           @click="editDataBtn(scope.row)">修 改
+                </el-button>
+                <el-button type="primary" size="mini" v-if="scope.row.currentstep == 0" icon="el-icon-success"
+                           @click="handleEditPassBtn(scope.row)">提 交
                 </el-button>
               </template>
             </el-table-column>
@@ -88,7 +98,7 @@
           <el-table :data="yesApproveDataList" border style="width: 100%">
             <el-table-column prop="formcode" label="表单编号" align="center">
             </el-table-column>
-            <el-table-column prop="protypeid" label="项目名称" align="center">
+            <el-table-column prop="protypename" label="项目名称" align="center">
             </el-table-column>
             </el-table-column>
             <el-table-column prop="deptname" label="部门名称" align="center">
@@ -100,7 +110,7 @@
             </el-table-column>
             <el-table-column prop="desc" label="审核步骤" align="center">
             </el-table-column>
-            <el-table-column label="操作" align="center">
+            <el-table-column label="操作" align="center" width="120">
               <template slot-scope="scope">
                 <el-button type="primary" size="mini" icon="el-icon-success" @click="lookTransacBtn(scope.row)">查 看
                 </el-button>
@@ -116,102 +126,6 @@
     <!-- 图片预览对话框 -->
     <el-dialog title="图片预览" :visible.sync="previewDialogVisible" width="50%">
       <img :src="previewPath" style="width: 100%;" alt="" />
-    </el-dialog>
-    <!-- 报销申请入口对话框 -->
-    <el-dialog title="报销申请明细填写" :visible.sync="applyInDialog" width="50%" :before-close="handleApplyInClose">
-      <div>
-        <el-form :model="travelTableForm" ref="travelTableRef" :rules="travelTableFormRules">
-          <el-row :gutter="20">
-            <el-col :span="6">
-              <el-form-item prop="deptid" label="部门编号:" style="width: 100%;">
-                <el-input v-model="travelTableForm.deptname" placeholder="请输入部门编号"></el-input>
-                <!-- <el-select v-model="travelTableForm.deptid" placeholder="请选择部门">
-                  <el-option v-for="item in allPostList" :key="item.deptid" :label="item.deptname" :value="item.deptid">
-                  </el-option>
-                </el-select> -->
-              </el-form-item>
-            </el-col>
-            <el-col :span="6">
-              <el-form-item prop="protypeid" label="项目编号:">
-                <el-cascader :props="defaultData" :show-all-levels="false" v-model="travelTableForm.protypeid"
-                             :options="chooseProList" @change="handleProList">
-                </el-cascader>
-              </el-form-item>
-            </el-col>
-            <el-col :span="6">
-              <el-form-item label="报销金额:" prop="paymoney">
-                <el-input type="number" v-model="travelTableForm.paymoney" placeholder="请输入报销金额" disabled></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="6">
-              <el-form-item label="报销标识:" prop="isflagvalue">
-                <el-select v-model="travelTableForm.isflagvalue" placeholder="请选择" @change="isflagchange">
-                  <el-option v-for="(item, index) in isflagoptions" :key="item.index" :label="item.label"
-                             :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row :gutter="20">
-            <el-col :span="6">
-              <el-form-item label="出差人:" prop="traname">
-                <el-select v-model="travelTableForm.traname" multiple placeholder="请选择出差人" @change="changeEmpname">
-                  <el-option v-for="item in chooseInfoList" :key="item.empid" :label="item.empname"
-                             :value="item.empname">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="6">
-              <el-form-item label="出差人职务:" prop="postid">
-                <el-select v-model="travelTableForm.postid" multiple placeholder="请选择出差人职务" @change="changeEmpname">
-                  <el-option v-for="item in chooseInfoList" :key="item.empid" :label="item.postname"
-                             :value="item.postname">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="6">
-              <el-form-item label="人数:" prop="tranum">
-                <el-input v-model="tranameNum" placeholder="请输入人数"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="6">
-              <el-form-item label="出差地点:" prop="traaddr">
-                <el-input v-model="travelTableForm.traaddr" placeholder="请输入出差地点"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row :gutter="20">
-            <el-col :span="24">
-              <el-form-item label="出差事由:" prop="tracause">
-                <el-input v-model="travelTableForm.tracause" placeholder="请输入出差事由"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row :gutter="20">
-            <el-col :span="24">
-              <el-form-item label="备注信息:">
-                <el-input v-model="travelTableForm.memo" placeholder="请输入备注信息"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row :gutter="20">
-            <el-col :span="10">
-              <el-form-item label="出差时间:" prop="valueTime">
-                <el-date-picker v-model="travelTableForm.valueTime" type="daterange" range-separator="至"
-                                start-placeholder="开始日期" end-placeholder="结束日期" value-format="yyyy-MM-dd">
-                </el-date-picker>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-form>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="applyInDialog = false">取 消</el-button>
-        <el-button type="primary" @click="addTravelForm">确 认</el-button>
-      </span>
     </el-dialog>
     <!--行程信息填写对话框  -->
     <el-dialog title="报销申请行程单填写" :visible.sync="applyTravelDialog" width="80%">
@@ -239,7 +153,7 @@
               </el-col>
               <el-col :span="24">
                 <div style='display: flex;'>
-                  <div style="border: none;" class="travel_box travel_box_img" v-for="items in item.fplist">
+                  <div style="border: none;" class="travel_box travel_box_img" v-for="items in item.expendReceiptlist">
                     <p>发票编码：{{items.receiptcode}}</p>
                     <img class="travel_box_img" :src="imgURL + items.picpath" alt="">
                   </div>
@@ -357,13 +271,10 @@
           <div v-for="item in travelData">
             <el-row class="travel_box" :gutter="20">
               <el-col :span="6">
-                <div>申报Id：{{item.travelid}}</div>
-              </el-col>
-              <el-col :span="6">
-                <div>项目分类：{{item.protypeid}}</div>
-              </el-col>
-              <el-col :span="6">
                 <div>表单编号：{{item.formcode}}</div>
+              </el-col>
+              <el-col :span="6">
+                <div>项目名称：{{item.protypename}}</div>
               </el-col>
               <el-col :span="6">
                 <div>部门：{{item.deptname}}</div>
@@ -372,13 +283,16 @@
                 <div>报销金额：{{item.paymoney}}</div>
               </el-col>
               <el-col :span="6">
-                <div>报销人：{{item.createby}}</div>
+                <div>报销人：{{item.createbyname}}</div>
               </el-col>
               <el-col :span="6">
                 <div>申请时间：{{item.createtime}}</div>
               </el-col>
               <el-col :span="6">
-                <div>审批步骤：{{item.currentstep}}</div>
+                <div v-if="item.isflag == 0">报销标识：办公业务</div>
+                <div v-if="item.isflag == 1">报销标识：教学业务</div>
+                <div v-if="item.isflag == 2">报销标识：学生业务</div>
+                <div v-if="item.isflag == 3">报销标识：科研业务</div>
               </el-col>
             </el-row>
           </div>
@@ -406,7 +320,7 @@
               </el-col>
               <el-col :span="24">
                 <div style='display: flex;'>
-                  <div style="border: none;" class="travel_box travel_box_img" v-for="items in item.fplist">
+                  <div style="border: none;" class="travel_box travel_box_img" v-for="items in item.expendReceiptlist">
                     <p>发票编码：{{items.receiptcode}}</p>
                     <img class="travel_box_img" :src="imgURL + items.picpath" alt="">
                   </div>
@@ -451,20 +365,17 @@
       </span>
     </el-dialog>
     <!-- 查看审批意见 -->
-    <el-dialog title="查看办理进度" :visible.sync="lookTransacDialog" width="50%">
+    <el-dialog title="查看办理进度" :visible.sync="lookTransacDialog" width="60%">
       <div>
         <el-collapse v-model="activeNames" accordion>
           <el-collapse-item title="基础信息" name="1">
             <div v-for="item in travelData">
               <el-row class="travel_box" :gutter="20">
                 <el-col :span="6">
-                  <div>申报Id：{{item.travelid}}</div>
-                </el-col>
-                <el-col :span="6">
-                  <div>项目分类：{{item.protypeid}}</div>
-                </el-col>
-                <el-col :span="6">
                   <div>表单编号：{{item.formcode}}</div>
+                </el-col>
+                <el-col :span="6">
+                  <div>项目名称：{{item.protypename}}</div>
                 </el-col>
                 <el-col :span="6">
                   <div>部门：{{item.deptname}}</div>
@@ -473,16 +384,18 @@
                   <div>报销金额：{{item.paymoney}}</div>
                 </el-col>
                 <el-col :span="6">
-                  <div>报销人：{{item.createby}}</div>
+                  <div>报销人：{{item.createbyname}}</div>
                 </el-col>
                 <el-col :span="6">
                   <div>申请时间：{{item.createtime}}</div>
                 </el-col>
                 <el-col :span="6">
-                  <div>审批步骤：{{item.currentstep}}</div>
+                  <div v-if="item.isflag == 0">报销标识：办公业务</div>
+                  <div v-if="item.isflag == 1">报销标识：教学业务</div>
+                  <div v-if="item.isflag == 2">报销标识：学生业务</div>
+                  <div v-if="item.isflag == 3">报销标识：科研业务</div>
                 </el-col>
               </el-row>
-
             </div>
           </el-collapse-item>
           <el-collapse-item title="明细信息" name="2">
@@ -508,7 +421,8 @@
                 </el-col>
                 <el-col :span="24">
                   <div style='display: flex;'>
-                    <div style="border: none;" class="travel_box travel_box_img" v-for="items in item.fplist">
+                    <div style="border: none;" class="travel_box travel_box_img"
+                         v-for="items in item.expendReceiptlist">
                       <p>发票编码：{{items.receiptcode}}</p>
                       <img class="travel_box_img" :src="imgURL + items.picpath" alt="">
                     </div>
@@ -518,7 +432,7 @@
             </div>
           </el-collapse-item>
           <el-collapse-item title="审批流程" name="3">
-            <div style="width: 60%;">
+            <div style="width: 80%; margin: 0 auto;">
               <el-timeline :reverse="reverse">
                 <el-timeline-item v-for="(activity, index) in CommentLists" :key="index" :timestamp="activity.endtime"
                                   placement="top">
@@ -528,9 +442,16 @@
                       <img src="../../assets/img/avatar.jpg" alt="" width="60px">
                     </div>
                   </el-card>
-
                 </el-timeline-item>
               </el-timeline>
+            </div>
+          </el-collapse-item>
+          <!-- 凭证信息展示 -->
+          <el-collapse-item title="付款凭证" name="4">
+            <div style='display: flex;'>
+              <div class="travel_box travel_box_img" v-for="item in pzlistData">
+                <img class="travel_box_img" :src="imgURL + item.picpath" alt="">
+              </div>
             </div>
           </el-collapse-item>
         </el-collapse>
@@ -549,14 +470,6 @@
       return {
         activeTravelNames: ['1'],
         isLoading: false,
-        chooseProList: [],
-        defaultData: { //联级选择
-          value: 'protypeid',
-          label: 'proname',
-          children: 'children'
-        },
-        // 对私人员信息
-        chooseInfoList: [],
         // 部门数据
         allPostList: [],
         isDisabled: true,
@@ -583,6 +496,7 @@
         travelData: [],
         mxlistData: [],
         fplistData: [],
+        pzlistData: [],
         activeNames: ['1'],
         // 办理对话框的隐藏
         transacTdialog: false,
@@ -618,63 +532,6 @@
         pagenum: "0",
         travelList: [],
         traid: "",
-        travelTableForm: {
-          deptid: "",
-          protypeid: "743375a5dcd24ff09997dfe4fc8b1d8a",
-          entname: '',
-          paymoney: "",
-          traname: '',
-          postid: "",
-          tranum: "",
-          traaddr: "",
-          tracause: "",
-          memo: "",
-          valueTime: "",
-          isflagvalue: ""
-        },
-        // 验证表单规则
-        travelTableFormRules: {
-          deptid: [{
-            required: true,
-            message: "请输入部门编号",
-            trigger: "blur"
-          }],
-          protypeid: [{
-            required: true,
-            message: "请输入项目编号",
-            trigger: "blur"
-          }],
-          traname: [{
-            required: true,
-            message: "请输入出差人",
-            trigger: "blur"
-          }],
-          postid: [{
-            required: true,
-            message: "请输入职务",
-            trigger: "blur"
-          }],
-          traaddr: [{
-            required: true,
-            message: "请输入出差地点",
-            trigger: "blur"
-          }],
-          tracause: [{
-            required: true,
-            message: "请输入出差事由",
-            trigger: "blur"
-          }],
-          isflagvalue: [{
-            required: true,
-            message: "请选择活动资源",
-            trigger: "change"
-          }],
-          valueTime: [{
-            required: true,
-            message: "请选择活动资源",
-            trigger: "change"
-          }]
-        },
         valueTime: "",
         formcode: "",
         // 图片预览对话框显示隐藏
@@ -708,24 +565,7 @@
         labelPosition: "left",
         tableForm: {},
         value1: "",
-        isflagvalue: "",
-        isflagoptions: [{
-            value: "0",
-            label: "二级院办公业务"
-          },
-          {
-            value: "0",
-            label: "行政部门"
-          },
-          {
-            value: "1",
-            label: "教学业务"
-          },
-          {
-            value: "2",
-            label: "学生业务"
-          }
-        ],
+
         costoptions: [{
             value: "交通费",
             label: "交通费"
@@ -776,11 +616,7 @@
         postidBtn: ''
       };
     },
-    computed: {
-      tranameNum() {
-        return this.travelTableForm.traname.length
-      }
-    },
+
     created() {
       this.getTravelList();
       // 调用获取分管校长函数
@@ -791,8 +627,6 @@
       this.getPostList()
       let userInfo = sessionStorage.getItem('userInfo')
       let userInfoData = JSON.parse(userInfo)
-      this.travelTableForm.deptid = userInfoData.deptid
-      this.travelTableForm.deptname = userInfoData.deptname
       this.postidBtn = userInfoData.postid
     },
     methods: {
@@ -856,57 +690,7 @@
           }
         })
       },
-      isflagchange() {
-        console.log("isflagvalue", this.isflagvalue);
-      },
-      // 明细信息数据提交
-      addTravelForm() {
-        this.$refs.travelTableRef.validate(async valid => {
-          var _this = this;
-          let protypeid = _this.travelTableForm.protypeid.pop()
-          if (valid) {
-            let expendTravel = [{
-              traid: "",
-              proType: {
-                protypeid: protypeid.toString()
-              },
-              dept: {
-                deptid: _this.travelTableForm.deptid
-              },
-              starttime: _this.travelTableForm.valueTime[0],
-              endtime: _this.travelTableForm.valueTime[1],
-              tracause: _this.travelTableForm.tracause,
-              traaddr: _this.travelTableForm.traaddr,
-              traname: _this.travelTableForm.traname.join(','),
-              tranum: _this.tranameNum,
-              postid: _this.travelTableForm.postid.join(','),
-              paymoney: _this.travelTableForm.paymoney,
-              memo: _this.travelTableForm.memo,
-              isflag: _this.travelTableForm.isflagvalue
-            }];
-            let empcard = sessionStorage.getItem("ulogin");
-            console.log("expendTravel", expendTravel);
-            console.log("empcard", empcard);
-            const {
-              data: res
-            } = await this.$axios.post(
-              "/expendTravel/webSaveTravel", {
-                expendTravel,
-                empcard
-              }
-            );
-            let traidData = JSON.parse(res);
-            _this.traid = traidData.traid;
-            _this.getTravelList();
-            _this.applyInDialog = false;
-            _this.handleApplyInClose();
-            console.log("明细信息数据提交", traidData.traid);
-            this.$message.success("申请信息提交成功");
-          } else {
-            return this.$message.error("请完善申请信息");
-          }
-        });
-      },
+
       // 获取报销列表数据
       async getTravelList() {
         let empcard = sessionStorage.getItem("ulogin");
@@ -921,33 +705,10 @@
         let travelData = JSON.parse(res)
         this.travelList = travelData.tralist;
         this.pagetotal = travelData.pagetotal;
+        console.log('travelList', this.travelList);
+
       },
-      // 报销申请入口按钮事件
-      async applyInBtn() {
-        this.applyInDialog = true;
-        let userInfo = sessionStorage.getItem('userInfo')
-        let userInfoData = JSON.parse(userInfo)
-        let deptid = userInfoData.deptid
-        let employee = [{
-          dept: {
-            deptid
-          },
-          jobpost: {
-            postid: ""
-          }
-        }]
-        // 获取部门人员列表
-        const res = await this.$axios.post('/employee/querybyDept', {
-          employee
-        })
-        this.chooseInfoList = JSON.parse(res.data)
-        // 获取部门项目层级列表
-        const result = await this.$axios.post('/projectType/queryDeptProList', {
-          deptid
-        })
-        this.chooseProList = JSON.parse(result.data)
-        console.log(this.chooseProList)
-      },
+
       // 项目选择事件
       handleProList(val) {
         console.log(val)
@@ -963,11 +724,6 @@
       noteUploadBtn(row) {
         this.noteUploadDialog = true;
         this.traid = row.travelid
-      },
-      // 报销申请入口对话框关闭事件
-      handleApplyInClose() {
-        this.applyInDialog = false;
-        this.$refs.travelTableRef.resetFields();
       },
       // 行程数据提交
       addApplyTravelForm() {
@@ -1074,7 +830,7 @@
         let yesApproveData = JSON.parse(res)
         this.yesApproveDataList = yesApproveData.tralist
         this.yesApprovepagetotal = yesApproveData.pagetotal
-        console.log('getNoApproveList', this.approveDataList)
+        console.log('yesApproveDataList', this.yesApproveDataList)
       },
       // 查看已申请列表数据分页
       handleTravelCurrentChange(newPage) {
@@ -1138,10 +894,12 @@
         let transactData = JSON.parse(res)
         this.travelData = transactData.travel
         this.mxlistData = transactData.mxlist
-        this.fplistData = transactData.fplist
+        this.fplistData = transactData.expendReceiptlist
+        this.pzlistData = transactData.pzlist
       },
       // 办理驳回事件
       handleRejectBtn() {
+
         const _this = this
         this.$refs.opinionFormRef.validate(async valid => {
           if (valid) {
@@ -1162,10 +920,12 @@
             })
             console.log('办理驳回事件', res)
             this.$message.success('报销申请已驳回！')
+            _this.opinionForm.opinion = ''
+            _this.transacTdialog = false
             _this.getYesApproveList()
             _this.getNoApproveList()
             _this.getTravelList()
-            this.transacTdialog = false
+
           } else {
             return _this.$message.warning('请先填写审批意见！')
           }
@@ -1173,6 +933,7 @@
       },
       // 办理通过事件
       async handlePassBtn() {
+
         let empcard = sessionStorage.getItem('ulogin')
         let expendTravel = [{
           traid: this.expendTravel.traid,
@@ -1208,6 +969,7 @@
         this.$message.success('报销审批已通过！');
         console.log('办理通过事件', rulst)
         this.transacTdialog = false
+        this.opinionForm.opinion = ''
         this.getYesApproveList()
         this.getNoApproveList()
         this.getTravelList()
@@ -1255,10 +1017,7 @@
         let voucherData = JSON.parse(file).relationPath
         this.voucherList.push(voucherData)
       },
-      // 选择出差人改变事件
-      changeEmpname(val) {
-        console.log(val)
-      },
+
       // 付款信息导出
       async exportInfoBtn() {
         let empcard = sessionStorage.getItem('ulogin')
@@ -1292,6 +1051,38 @@
           });
 
         });
+      },
+      editDataBtn(row) {
+        let id = row.travelid
+        this.$router.push({
+          path: "/expendTavel/editTravel",
+          query: {
+            id: id
+          }
+        })
+      },
+      async handleEditPassBtn(row) {
+        console.log(row);
+
+        let empcard = sessionStorage.getItem('ulogin')
+        let expendTravel = [{
+          traid: row.travelid,
+          taskID: row.taskID
+        }]
+        let opinion = this.opinionForm.opinion
+        let agree = 0
+        const {
+          data: res
+        } = await this.$axios.post('/expendTravel/webPassAudit', {
+          empcard,
+          expendTravel,
+          agree,
+          opinion
+        })
+        console.log('办理通过事件', res)
+        this.getYesApproveList()
+        this.getNoApproveList()
+        this.getTravelList()
       }
     }
   };

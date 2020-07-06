@@ -80,7 +80,14 @@
             </el-table-column>
             <el-table-column label="操作" align="center">
               <template slot-scope="scope">
-                <el-button type="primary" size="mini" icon="el-icon-success" @click="tranDayDataBtn(scope.row)">办 理
+                <el-button type="primary" size="mini" v-if="scope.row.currentstep == 1" icon="el-icon-success"
+                           @click="tranDayDataBtn(scope.row)">办 理
+                </el-button>
+                <el-button type="warning" size="mini" v-if="scope.row.currentstep == 0" icon="el-icon-edit"
+                           @click="editBorrowDataBtn(scope.row)">修 改
+                </el-button>
+                <el-button type="primary" size="mini" v-if="scope.row.currentstep == 0" icon="el-icon-success"
+                           @click="handleBorrowPassBtn(scope.row)">提 交
                 </el-button>
               </template>
             </el-table-column>
@@ -179,7 +186,7 @@
                 <div>表单编号：{{item.formcode}}</div>
               </el-col>
               <el-col :span="6">
-                <div>项目分类：{{item.protypeid}}</div>
+                <div>项目名称：{{item.protypename}}</div>
               </el-col>
               <el-col :span="6">
                 <div>部门：{{item.deptname}}</div>
@@ -207,10 +214,10 @@
                 <div v-else>借款用途：普通借款</div>
               </el-col>
               <el-col :span="6">
-                <div>报销标识：{{item.isflag}}</div>
-              </el-col>
-              <el-col :span="6">
-                <div>对冲号：{{item.hedgenum}}</div>
+                <div v-if="item.isflag == 0">报销标识：办公业务</div>
+                <div v-if="item.isflag == 1">报销标识：教学业务</div>
+                <div v-if="item.isflag == 2">报销标识：学生业务</div>
+                <div v-if="item.isflag == 3">报销标识：科研业务</div>
               </el-col>
               <el-col :span="6">
                 <div v-if="item.payway == 0">报销方式：对公</div>
@@ -237,7 +244,6 @@
         <el-collapse-item title="附件" name="2">
           <div style='display: flex;'>
             <div class="travel_box travel_box_img" v-for="item in dayFJInfoList">
-
               <a :href="imgURL + item.picpath" target="_block">
                 <p>附件名称：{{item.recname}}(点击查看详情)</p>
               </a>
@@ -262,7 +268,7 @@
           </div>
         </el-collapse-item>
         <!-- 付款凭证上传 -->
-        <el-collapse-item title="付款凭证" name="4" v-if="cashier == '待付款' ?  false: true">
+        <el-collapse-item title="付款凭证" name="4" v-if="cashier == '待付款' ? true : false">
           <el-upload :action="uploadURL" list-type="picture-card" :on-preview="handlePictureCardPreview"
                      :on-remove="handlePictureRemove" :on-success="handlePictureSuccess">
             <i class="el-icon-plus"></i>
@@ -275,7 +281,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="handleRejectBtn" v-if="cashier == '待付款' ? true : false">驳 回</el-button>
+        <el-button @click="handleRejectBtn" v-if="cashier == '待付款' ?  false: true">驳 回</el-button>
         <el-button type="primary" @click="handlePassBtn">通 过</el-button>
       </span>
     </el-dialog>
@@ -284,7 +290,7 @@
       <img width="100%" :src="dialogImageUrl" alt="">
     </el-dialog>
     <!-- 查看审批意见 -->
-    <el-dialog title="查看办理进度" :visible.sync="lookDayDialog" width="50%">
+    <el-dialog title="查看办理进度" :visible.sync="lookDayDialog" width="60%">
       <div>
         <el-collapse v-model="activeNames" accordion>
           <el-collapse-item title="基础信息" name="1">
@@ -294,7 +300,7 @@
                   <div>表单编号：{{item.formcode}}</div>
                 </el-col>
                 <el-col :span="6">
-                  <div>项目分类：{{item.protypeid}}</div>
+                  <div>项目名称：{{item.protypename}}</div>
                 </el-col>
                 <el-col :span="6">
                   <div>部门：{{item.deptname}}</div>
@@ -322,10 +328,10 @@
                   <div v-else>借款用途：普通借款</div>
                 </el-col>
                 <el-col :span="6">
-                  <div>报销标识：{{item.isflag}}</div>
-                </el-col>
-                <el-col :span="6">
-                  <div>对冲号：{{item.hedgenum}}</div>
+                  <div v-if="item.isflag == 0">报销标识：办公业务</div>
+                  <div v-if="item.isflag == 1">报销标识：教学业务</div>
+                  <div v-if="item.isflag == 2">报销标识：学生业务</div>
+                  <div v-if="item.isflag == 3">报销标识：科研业务</div>
                 </el-col>
                 <el-col :span="6">
                   <div v-if="item.payway == 0">报销方式：对公</div>
@@ -361,7 +367,7 @@
             </div>
           </el-collapse-item>
           <el-collapse-item title="审批流程" name="3">
-            <div style="width: 60%;">
+            <div style="width: 80%; margin: 0 auto;">
               <el-timeline :reverse="reverse">
                 <el-timeline-item v-for="(activity, index) in CommentLists" :key="index" :timestamp="activity.endtime"
                                   placement="top">
@@ -371,9 +377,16 @@
                       <img src="../../assets/img/avatar.jpg" alt="" width="60px">
                     </div>
                   </el-card>
-
                 </el-timeline-item>
               </el-timeline>
+            </div>
+          </el-collapse-item>
+          <!-- 凭证信息展示 -->
+          <el-collapse-item title="付款凭证" name="4">
+            <div style='display: flex;'>
+              <div class="travel_box travel_box_img" v-for="item in pzlistData">
+                <img class="travel_box_img" :src="imgURL + item.picpath" alt="">
+              </div>
             </div>
           </el-collapse-item>
         </el-collapse>
@@ -421,6 +434,7 @@
         },
         dayFJInfoList: [],
         dayInfoList: [],
+        pzlistData: [],
         activeNames: ['1'],
         // 办理对话框
         tranDayDialog: false,
@@ -462,7 +476,7 @@
         pagenum: '0',
 
         // 判断是否为出纳
-        cashier: "",
+        cashier: '',
         postidBtn: ''
       }
     },
@@ -473,6 +487,9 @@
       this.getBorrowMoneWaitList()
       // 调用获取已办理列表数据
       this.getBorrowMoneFinishList()
+      let userInfo = sessionStorage.getItem('userInfo')
+      let userInfoData = JSON.parse(userInfo)
+      this.postidBtn = userInfoData.postid
     },
     methods: {
       // 已申请列表分页事件
@@ -499,7 +516,6 @@
           empcard,
           pagenum
         })
-        console.log(res)
         if (res.length > 0) {
           let data = JSON.parse(res)
           console.log(data)
@@ -508,7 +524,6 @@
         } else {
           this.$message.error('获取数据失败！');
         }
-        console.log('borrowMoneList', this.borrowMoneList)
       },
       borrowNoteUploadBtn(row) {
         this.loanid = row.loanid
@@ -624,7 +639,7 @@
       tranDayDataBtn(row) {
         console.log('办理按钮事件和数据获取', row)
         let loanid = row.Loanid
-        let cashier = row.desc
+        this.cashier = row.desc
         this.expendLoan.loanid = row.Loanid
         this.expendLoan.taskID = row.taskID
         this.getFindCommentList(loanid)
@@ -642,6 +657,7 @@
           console.log(data)
           this.dayInfoList = data.loan
           this.dayFJInfoList = data.fjlist
+          this.pzlistData = data.pzlist
         } else {
           this.$message.error('获取数据失败！');
         }
@@ -678,6 +694,7 @@
             })
             _this.$message.warning('借款申请已驳回！')
             console.log('办理驳回事件', res)
+            _this.opinionForm.opinion = ''
             _this.getBorrowMoneyList()
             _this.getBorrowMoneWaitList()
             _this.getBorrowMoneFinishList()
@@ -723,7 +740,9 @@
         });
         this.$message.success('审批已通过！');
         console.log('办理通过事件', rulst)
+
         this.tranDayDialog = false
+        this.opinionForm.opinion = ''
         this.getBorrowMoneyList()
         this.getBorrowMoneWaitList()
         this.getBorrowMoneFinishList()
@@ -784,6 +803,40 @@
           });
 
         });
+      },
+      editBorrowDataBtn(row) {
+        console.log(row);
+        let id = row.Loanid
+        this.$router.push({
+          path: '/expendLoan/editBorrow',
+          query: {
+            id: id
+          }
+        })
+      },
+      async handleBorrowPassBtn(row) {
+        console.log(row)
+        let empcard = sessionStorage.getItem('ulogin')
+        let expendLoan = [{
+          loanid: row.Loanid,
+          taskID: row.taskID
+        }]
+        let opinion = this.opinionForm.opinion
+        let agree = 0
+        const {
+          data: res
+        } = await this.$axios.post('/expendLoan/webPassAudit', {
+          empcard,
+          expendLoan,
+          agree,
+          opinion
+        })
+        this.$message.success('申请提交成功！');
+        console.log('办理通过事件', res)
+        this.tranDayDialog = false
+        this.getBorrowMoneyList()
+        this.getBorrowMoneWaitList()
+        this.getBorrowMoneFinishList()
       }
     },
   }

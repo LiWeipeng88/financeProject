@@ -22,7 +22,7 @@
         </el-menu>
       </div>
     </van-popup>
-    <router-view></router-view>
+    <router-view style="margin-top: 2.875rem;"></router-view>
   </div>
 </template>
 
@@ -64,7 +64,6 @@
         })
         const data = JSON.parse(res)
         this.oneNavList = data.permissions
-        console.log(this.oneNavList)
       },
       // 点击一级菜单获取二级菜单
       async handleOpen(key) {
@@ -76,7 +75,6 @@
         })
         const data = JSON.parse(res)
         this.twoNavList = data.permissions
-        console.log(this.twoNavList)
       },
       handleNavBtn() {
         this.show = false;
@@ -87,48 +85,9 @@
 </script>
 
 <style scoped="scoped">
-  .mint-header {
-    font-size: 1rem;
-  }
-
-  .v-modal {
-    opacity: 0 !important;
-    z-index: 0 !important;
-  }
-
-  .mint-popup {
-    top: 2.3rem;
-    width: 100%;
-    background-color: #26a2ff;
-    color: #fff;
-  }
-
-  .nav_top {
-    width: 100%;
-    height: auto;
-    padding: 0px 1.25rem;
-  }
-
-  .nav_top ul li {
-    line-height: 2.5rem;
-    font-size: 1rem;
-  }
-
-  .el-table .warning-row {
-    background: oldlace;
-  }
-
-  .el-table .success-row {
-    background: #f0f9eb;
-  }
-
   .home_nav {
     padding: 0.625rem;
     font-size: 0.875rem;
-  }
-
-  .van-collapse-item__content {
-    padding: 0rem 0.625rem !important;
   }
 
   .van-popup--left {
@@ -145,6 +104,15 @@
 
   .van-nav-bar__text {
     color: #fff !important;
+  }
+
+  .van-nav-bar {
+    position: fixed;
+    top: 0px;
+    width: 100%;
+    z-index: 9;
+    height: 2.875rem;
+
   }
 
 </style>

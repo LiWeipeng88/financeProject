@@ -1,39 +1,37 @@
 <template>
   <div class="home">
+    <el-header>
+      <div class="logo">
+        <span>财务综合服务平台</span>
+      </div>
+      <div class="login_out">
+        <span style="color: #fff; margin-right: 16px; font-size: 14px;">欢迎进入平台：{{loginName}}</span>
+        <el-button type="info" @click="loginOut">退出</el-button>
+      </div>
+    </el-header>
     <el-container>
-      <el-header>
-        <div class="logo">
-          <span>财务综合服务平台</span>
-        </div>
-        <div class="login_out">
-          <span style="color: #fff; margin-right: 16px; font-size: 14px;">欢迎进入平台：{{loginName}}</span>
-          <el-button type="info" @click="loginOut">退出</el-button>
-        </div>
-      </el-header>
-      <el-container>
-        <el-aside width="200px">
-          <el-col :span="12">
-            <el-menu @open="handleOpen" :default-active="$router.path" router unique-opened background-color="#545c64"
-                     text-color="#fff" active-text-color="#409eff">
-              <el-submenu :index="item.pid" v-for="(item, index) in oneNavList" :key="item.pid">
+      <el-aside width="200px">
+        <el-col :span="12">
+          <el-menu @open="handleOpen" :default-active="$router.path" router unique-opened background-color="#545c64"
+                   text-color="#fff" active-text-color="#409eff">
+            <el-submenu :index="item.pid" v-for="(item, index) in oneNavList" :key="item.pid">
+              <template slot="title">
+                <i :class="iconList[index]"></i>
+                <span>{{item.pname}}</span>
+              </template>
+              <el-menu-item :index="item.purl" v-for="item in twoNavList" :key="item.pid">
                 <template slot="title">
-                  <i :class="iconList[index]"></i>
+                  <i class="el-icon-s-operation"></i>
                   <span>{{item.pname}}</span>
                 </template>
-                <el-menu-item :index="item.purl" v-for="item in twoNavList" :key="item.pid">
-                  <template slot="title">
-                    <i class="el-icon-s-operation"></i>
-                    <span>{{item.pname}}</span>
-                  </template>
-                </el-menu-item>
-              </el-submenu>
-            </el-menu>
-          </el-col>
-        </el-aside>
-        <el-main>
-          <router-view></router-view>
-        </el-main>
-      </el-container>
+              </el-menu-item>
+            </el-submenu>
+          </el-menu>
+        </el-col>
+      </el-aside>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </div>
 </template>
@@ -98,7 +96,7 @@
 
 <style scoped="scoped">
   .home {
-    height: 100%;
+    height: calc(100vh - 60px)
   }
 
   .el-header {

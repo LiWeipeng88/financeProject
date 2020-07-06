@@ -38,7 +38,7 @@
                 <el-tag v-else size="medium">待处理</el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="操作" align="center">
+            <el-table-column label="操作" align="center" width="200">
               <template slot-scope="scope">
                 <el-button :disabled="scope.row.currentstep == 2 ? false :true " type="danger" size="mini"
                            icon="el-icon-circle-plus" @click="dayNoteUploadBtn(scope.row)">票 据
@@ -63,7 +63,6 @@
             </el-table-column>
             <el-table-column prop="protypename" label="项目名称" align="center">
             </el-table-column>
-
             <el-table-column prop="deptid" label="部门名称" align="center">
             </el-table-column>
             <el-table-column prop="paymoney" label="报销金额" width="120" align="center">
@@ -79,13 +78,16 @@
             </el-table-column>
             <el-table-column prop="desc" label="审核步骤">
             </el-table-column>
-            <el-table-column label="操作" align="center">
+            <el-table-column label="操作" align="center" width="200">
               <template slot-scope="scope">
-                <el-button type="primary" size="mini" v-if="scope.row.currentstep == 1" icon="el-icon-success"
+                <el-button type="primary" size="mini" v-if="scope.row.currentstep == 1" icon="el-icon-edit"
                            @click="tranDayDataBtn(scope.row)">办 理
                 </el-button>
-                <el-button type="primary" size="mini" v-else icon="el-icon-success" @click="editDataBtn(scope.row)">修
-                  改
+                <el-button type="warning" size="mini" v-if="scope.row.currentstep == 0" icon="el-icon-edit"
+                           @click="editDataBtn(scope.row.dailyid)">修 改
+                </el-button>
+                <el-button type="primary" size="mini" v-if="scope.row.currentstep == 0" icon="el-icon-success"
+                           @click="handleEditPassBtn(scope.row)">提 交
                 </el-button>
               </template>
             </el-table-column>
@@ -111,7 +113,7 @@
             </el-table-column>
             <el-table-column prop="desc" label="审核步骤" align="center">
             </el-table-column>
-            <el-table-column label="操作" align="center">
+            <el-table-column label="操作" align="center" width="100">
               <template slot-scope="scope">
                 <el-button type="primary" size="mini" icon="el-icon-search" @click="lookDayAppleFinishBtn(scope.row)">查
                   看
@@ -171,7 +173,7 @@
       </span>
     </el-dialog>
     <!-- 查看审批意见 -->
-    <el-dialog title="查看办理进度" :visible.sync="lookDayDialog" width="50%">
+    <el-dialog title="查看办理进度" :visible.sync="lookDayDialog" width="60%">
       <div>
         <el-collapse v-model="activeNames" accordion>
           <!-- 基础信息展示 -->
@@ -182,11 +184,10 @@
                   <div>表单编号：{{item.formcode}}</div>
                 </el-col>
                 <el-col :span="6">
-                  <div>项目分类：{{item.protypeid}}</div>
+                  <div>项目名称：{{item.protypename}}</div>
                 </el-col>
-
                 <el-col :span="6">
-                  <div>部门：{{item.deptid}}</div>
+                  <div>部门：{{item.deptname}}</div>
                 </el-col>
                 <el-col :span="6">
                   <div>报销金额：{{item.paymoney}}</div>
@@ -198,7 +199,10 @@
                   <div>申请时间：{{item.createtime}}</div>
                 </el-col>
                 <el-col :span="6">
-                  <div>报销标识：{{item.isflag}}</div>
+                  <div v-if="item.isflag == 0">报销标识：办公业务</div>
+                  <div v-if="item.isflag == 1">报销标识：教学业务</div>
+                  <div v-if="item.isflag == 2">报销标识：学生业务</div>
+                  <div v-if="item.isflag == 3">报销标识：科研业务</div>
                 </el-col>
                 <el-col :span="6">
                   <div>内容摘要：{{item.expendcontent}}</div>
@@ -209,7 +213,6 @@
                 <el-col :span="12">
                   <div>报销描述：{{item.dailydesc}}</div>
                 </el-col>
-
               </el-row>
             </div>
           </el-collapse-item>
@@ -236,7 +239,7 @@
           </el-collapse-item>
           <!-- 审批流程 -->
           <el-collapse-item title="审批流程" name="4">
-            <div style="width: 60%;">
+            <div style="width: 80%; margin: 0 auto;">
               <el-timeline :reverse="reverse">
                 <el-timeline-item v-for="(activity, index) in CommentLists" :key="index" :timestamp="activity.endtime"
                                   placement="top">
@@ -246,9 +249,16 @@
                       <img src="../../assets/img/avatar.jpg" alt="" width="60px">
                     </div>
                   </el-card>
-
                 </el-timeline-item>
               </el-timeline>
+            </div>
+          </el-collapse-item>
+          <!-- 凭证信息展示 -->
+          <el-collapse-item title="付款凭证" name="5">
+            <div style='display: flex;'>
+              <div class="travel_box travel_box_img" v-for="item in daypzlist">
+                <img class="travel_box_img" :src="imgURL + item.picpath" alt="">
+              </div>
             </div>
           </el-collapse-item>
         </el-collapse>
@@ -268,11 +278,10 @@
                 <div>表单编号：{{item.formcode}}</div>
               </el-col>
               <el-col :span="6">
-                <div>项目分类：{{item.protypeid}}</div>
+                <div>项目名称：{{item.protypename}}</div>
               </el-col>
-
               <el-col :span="6">
-                <div>部门：{{item.deptid}}</div>
+                <div>部门：{{item.deptname}}</div>
               </el-col>
               <el-col :span="6">
                 <div>报销金额：{{item.paymoney}}</div>
@@ -284,7 +293,10 @@
                 <div>申请时间：{{item.createtime}}</div>
               </el-col>
               <el-col :span="6">
-                <div>报销标识：{{item.isflag}}</div>
+                <div v-if="item.isflag == 0">报销标识：办公业务</div>
+                <div v-if="item.isflag == 1">报销标识：教学业务</div>
+                <div v-if="item.isflag == 2">报销标识：学生业务</div>
+                <div v-if="item.isflag == 3">报销标识：科研业务</div>
               </el-col>
               <el-col :span="6">
                 <div>内容摘要：{{item.expendcontent}}</div>
@@ -295,7 +307,6 @@
               <el-col :span="12">
                 <div>报销描述：{{item.dailydesc}}</div>
               </el-col>
-
             </el-row>
           </div>
         </el-collapse-item>
@@ -312,7 +323,6 @@
         <el-collapse-item title="附件" name="3">
           <div style='display: flex;'>
             <div class="travel_box travel_box_img" v-for="item in dayfJlist">
-
               <a :href="imgURL + item.picpath" target="_block">
                 <p>附件名称：{{item.recname}}(点击查看详情)</p>
               </a>
@@ -359,107 +369,6 @@
     <el-dialog :visible.sync="dialogVisible">
       <img width="100%" :src="dialogImageUrl" alt="">
     </el-dialog>
-    <!-- 修改对话框 -->
-    <el-dialog title="办理信息查看" :visible.sync="editDataDialog" width="60%">
-      <el-form ref="form" :model="editInfoForm">
-        <el-collapse v-model="activeNames" accordion>
-          <el-collapse-item title="基础信息" name="1">
-            <el-row :gutter="20">
-              <el-col :span="6">
-                <el-form-item label="申报Id：">
-                  <el-input v-model="editInfoForm.dailyid"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="项目分类：">
-                  <el-input v-model="editInfoForm.protypeid"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="表单编号：">
-                  <el-input v-model="editInfoForm.formcode" disabled></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="部门：">
-                  <el-input v-model="editInfoForm.deptid"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="报销金额：">
-                  <el-input v-model="editInfoForm.paymoney"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="报销人：">
-                  <el-input v-model="editInfoForm.createby" disabled></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="申请时间：">
-                  <el-input v-model="editInfoForm.createtime" disabled></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="报销标识：">
-                  <el-select v-model="editInfoForm.isflag" placeholder="请选择" style="width: 100%;">
-                    <el-option v-for="(item, index) in isflagoptions" :key="item.index" :label="item.label"
-                               :value="item.value">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="内容摘要：">
-                  <el-input v-model="editInfoForm.expendcontent"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="报销要求：">
-                  <el-input v-model="editInfoForm.paydemand"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="报销描述：">
-                  <el-input v-model="editInfoForm.dailydesc"></el-input>
-                </el-form-item>
-              </el-col>
-
-            </el-row>
-
-          </el-collapse-item>
-          <el-collapse-item title="发票信息" name="2">
-            <el-row type="flex" style="display: flex; flex-wrap: wrap;" :gutter="40">
-              <el-col :span="12" v-for="(item, i) in dayFpList" :key='i'>
-                <el-form>
-                  <el-form-item label="发票编码">
-                    <el-input v-model="item.receiptcode"></el-input>
-                  </el-form-item>
-                  <el-form-item label="标识">
-                    <el-input v-model="item.isflag"></el-input>
-                  </el-form-item>
-                  <el-form-item label="发票">
-                    <el-upload id="avatar-uploader" class="avatar-uploader" :action="uploadURL" :show-file-list="false"
-                               :on-success=" res =>$set(item, 'picpath', JSON.parse(res).relationPath)">
-                      <img v-if="item.picpath" :src="imgURL+item.picpath" class="avatar">
-                      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                    </el-upload>
-                  </el-form-item>
-                </el-form>
-              </el-col>
-            </el-row>
-          </el-collapse-item>
-        </el-collapse>
-        <el-form-item label="审批意见">
-          <el-input type="textarea" v-model="editInfoForm.opinion"></el-input>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="editDataDialog = false">取 消</el-button>
-        <el-button type="primary" @click="sureEditBtn">确 认</el-button>
-      </span>
-
-    </el-dialog>
   </div>
 </template>
 
@@ -490,10 +399,6 @@
         isLoading: false,
         // 附件数组
         fileListS: [],
-
-        editDataDialog: false,
-        // 修改基础信息表单
-        editInfoForm: {},
         reverse: true,
         CommentLists: [],
         // 通过或者驳回参数
@@ -515,6 +420,7 @@
         dayInfoList: [],
         dayFpList: [],
         dayfJlist: [],
+        daypzlist: [],
         activeNames: ['1'],
         // 办理对话框隐藏
         tranDayDialog: false,
@@ -577,6 +483,9 @@
       this.getDayAppleWaitList()
       // 调用已办理列表数据获取
       this.getDayAppleFinishList()
+      let userInfo = sessionStorage.getItem('userInfo')
+      let userInfoData = JSON.parse(userInfo)
+      this.postidBtn = userInfoData.postid
     },
     methods: {
       // 分页事件
@@ -584,11 +493,6 @@
         this.pagenum = newpage - 1
         this.getDayMoneyList()
       },
-      // 报销申请对话框关闭事件
-      handleApplyInClose() {
-        this.applyInDialog = false;
-      },
-
       // 获取分管校长数据
       async getRectorList() {
         const {
@@ -596,7 +500,6 @@
         } = await this.$axios.post('/employee/queryFg')
         this.rectorList = JSON.parse(res)
       },
-
       // 获取已申请数据列表
       async getDayMoneyList() {
         let empcard = sessionStorage.getItem('ulogin')
@@ -615,7 +518,6 @@
         } else {
           this.$message.error('获取数据失败！');
         }
-
       },
       // 发票上传按钮事件
       dayNoteUploadBtn(row) {
@@ -702,6 +604,8 @@
           console.log(JSON.parse(res))
           let data = JSON.parse(res)
           this.DayAppleWaitList = data.dailylist
+          console.log(this.DayAppleWaitList);
+
           this.Waittotal = data.pagetotal
         } else {
           this.$message.error('获取数据失败！');
@@ -754,11 +658,12 @@
         })
         if (res.length > 0) {
           const data = JSON.parse(res)
-          // console.log('办理按钮事件', data)
+          console.log('办理按钮事件', data)
           this.dayInfoList = data.daily
           this.editInfoForm = data.daily[0]
           this.dayFpList = data.fplist
           this.dayfJlist = data.fjlist
+          this.daypzlist = data.pzlist
           console.log('editInfoForm', this.editInfoForm)
         } else {
           this.$message.error('获取数据失败！');
@@ -786,6 +691,7 @@
             })
             this.$message.error('报销审批已驳回！');
             console.log('办理驳回事件', res)
+            this.opinionForm.opinion = ''
             _this.getDayMoneyList()
             _this.getDayAppleWaitList()
             _this.getDayAppleFinishList()
@@ -804,6 +710,7 @@
         }]
         let opinion = this.opinionForm.opinion
         let agree = 0
+        console.log(expendDaily);
         const {
           data: res
         } = await this.$axios.post('/expendDaily/webPassAudit', {
@@ -832,6 +739,7 @@
         this.$message.success('报销审批已通过！');
         console.log('办理通过事件', rulst)
         this.tranDayDialog = false
+        this.opinionForm.opinion = ''
         this.getDayMoneyList()
         this.getDayAppleWaitList()
         this.getDayAppleFinishList()
@@ -854,35 +762,6 @@
         console.log('CommentLists', res)
         this.CommentLists = JSON.parse(res)
         console.log('CommentLists', this.CommentLists)
-      },
-      // 修改按钮事件
-      async editDataBtn(row) {
-        let dailyid = row.dailyid
-        const {
-          data: res
-        } = await this.$axios.post('/expendDaily/queryOneDaily', {
-          dailyid
-        })
-        if (res.length > 0) {
-          console.log(JSON.parse(res))
-          const data = JSON.parse(res)
-          this.dayInfoList = data.daily
-          this.editInfoForm = data.daily[0]
-          this.dayFpList = data.fplist
-          console.log('editInfoForm', this.editInfoForm)
-        } else {
-          this.$message.error('获取数据失败！');
-        }
-        this.getFindCommentList(dailyid)
-        this.editDataDialog = true
-      },
-      // 修改对话框确定按钮
-      sureEditBtn() {
-        this.dayFpList.forEach(e => {
-          e.recid = ''
-        })
-        console.log(this.dayFpList)
-        console.log('editInfoForm', this.editInfoForm)
       },
       handlePictureRemove(file, fileList) {
         let voucherDataRemove = JSON.parse(file.response).relationPath
@@ -933,7 +812,56 @@
 
         });
       },
-
+      // 修改按钮跳转
+      editDataBtn(id) {
+        this.$router.push({
+          path: '/expendDaily/editDay',
+          query: {
+            id: id
+          }
+        })
+      },
+      // 修改后办理通过事件
+      async handleEditPassBtn(row) {
+        let empcard = sessionStorage.getItem('ulogin')
+        let expendDaily = [{
+          dailyid: row.dailyid,
+          taskID: row.taskID
+        }]
+        let opinion = this.opinionForm.opinion
+        let agree = 0
+        const {
+          data: res
+        } = await this.$axios.post('/expendDaily/webPassAudit', {
+          empcard,
+          expendDaily,
+          agree,
+          opinion
+        })
+        console.log('办理通过事件', res)
+        let expendReceipt = []
+        this.voucherList.map(e => {
+          let obj = {}
+          obj.picpath = e
+          obj.isflag = "2"
+          obj.recid = ""
+          obj.expendid = row.dailyid
+          obj.receiptcode = ""
+          expendReceipt.push(obj)
+        })
+        const {
+          data: rulst
+        } = await this.$axios.post('/expendReceipt/webSaveReceipt', {
+          empcard,
+          expendReceipt
+        });
+        this.$message.success('报销审批已通过！');
+        console.log('办理通过事件', rulst)
+        this.tranDayDialog = false
+        this.getDayMoneyList()
+        this.getDayAppleWaitList()
+        this.getDayAppleFinishList()
+      },
     },
   }
 
@@ -1025,15 +953,5 @@
     color: #333;
     text-decoration: none;
   }
-
-  /* .xiangmu {
-    position: relative;
-  }
-
-  .el-cascader-panel {
-    position: absolute;
-    top: 20px;
-    left: 0;
-  } */
 
 </style>

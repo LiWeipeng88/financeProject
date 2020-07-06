@@ -10,6 +10,9 @@ import Borrow from "@/views/mobile/borrow.vue";
 import Welcome from "@/views/mobile/welcome.vue";
 import BorrowPage from "@/views/mobile/borrowViews/borrowPage.vue";
 import HandBorrowPage from "@/views/mobile/borrowViews/handBorrowPage.vue";
+import BorrowApplyPage from "@/views/mobile/borrowViews/borrowApplyPage.vue";
+import LookBorrow from "@/views/mobile/borrowViews/lookBorrow.vue";
+import DayPage from "@/views/mobile/dayViews/dayPage.vue";
 
 Vue.use(Router);
 
@@ -48,23 +51,33 @@ let router = new Router({
         },
         {
           path: "/expendLoan/queryPage",
-          name: "Borrow",
-          component: Borrow
-        },
-        {
-          path: "/expendDaily/queryPage",
-          name: "Everyday",
-          component: Everyday
-        },
-        {
-          path: "/borrowPage",
           name: "BorrowPage",
           component: BorrowPage
         },
         {
+          path: "/expendDaily/queryPage",
+          name: "DayPage",
+          component: DayPage
+        },
+        // {
+        //   path: "/borrowPage", //修改后的借款界面
+        //   name: "BorrowPage",
+        //   component: BorrowPage
+        // },
+        {
           path: "/handBorrowPage",
           name: "HandBorrowPage",
           component: HandBorrowPage
+        },
+        {
+          path: "/borrowApplyPage",
+          name: "BorrowApplyPage",
+          component: BorrowApplyPage
+        },
+        {
+          path: "/lookBorrow",
+          name: "LookBorrow",
+          component: LookBorrow
         }
       ]
     }

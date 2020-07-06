@@ -1,22 +1,22 @@
 <template>
-  <div class="borrow">
+  <div class="day_page">
     <!-- 面包屑 -->
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>报销审批</el-breadcrumb-item>
-      <el-breadcrumb-item>借款</el-breadcrumb-item>
+      <el-breadcrumb-item>日常报销</el-breadcrumb-item>
     </el-breadcrumb>
     <van-tabs v-model="activeName">
       <!-- 已申请列表数据 -->
       <van-tab title="已申请列表" name="a">
-        <div class="borrow_list" v-for="item in borrowMoneList">
+        <div class="borrow_list" v-for="item in DayMoneyList">
           <div class="borrow_info">
             <span class="bianma">编码：{{item.formcode}}</span><span class="pro_name">名称：{{item.protypename}}</span>
             <div class="pro_info">
-              <span>部门：{{item.deptname}}</span><span>金额：{{item.loanpay}}元</span><span>报销人：{{item.createbyname}}</span>
+              <span>部门：{{item.deptid}}</span><span>金额：{{item.paymoney}}元</span><span>报销人：{{item.createbyname}}</span>
             </div>
             <div class="borrow_time">
-              <span>时间：{{item.expecttime}}</span><span>状态：
+              <span>时间：{{item.createtime}}</span><span>状态：
                 <van-tag v-if="item.currentstep == 1" type="primary" size="small">流转中</van-tag>
                 <van-tag type="warning" v-else size="small">待处理</van-tag>
               </span>
@@ -28,14 +28,14 @@
       </van-tab>
       <!-- 待办理列表数据 -->
       <van-tab title="待办理列表" name="b">
-        <div class="borrow_list" v-for="item in BorrowMoneWaitList">
+        <div class="borrow_list" v-for="item in DayAppleWaitList">
           <div class="borrow_info">
             <span class="bianma">编码：{{item.formcode}}</span><span class="pro_name">名称：{{item.protypename}}</span>
             <div class="pro_info">
-              <span>部门：{{item.deptname}}</span><span>金额：{{item.loanpay}}元</span><span>报销人：{{item.createbyname}}</span>
+              <span>部门：{{item.deptid}}</span><span>金额：{{item.paymoney}}元</span><span>报销人：{{item.createbyname}}</span>
             </div>
             <div class="borrow_time">
-              <span>时间：{{item.expecttime}}</span><span>状态：<van-tag v-if="item.currentstep == 1" type="primary"
+              <span>时间：{{item.createtime}}</span><span>状态：<van-tag v-if="item.currentstep == 1" type="primary"
                          size="small">流转中</van-tag>
                 <van-tag type="warning" v-else size="small">待处理</van-tag>
               </span>
@@ -51,14 +51,14 @@
       </van-tab>
       <!-- 已办理数据列表 -->
       <van-tab title="已办理列表" name="c">
-        <div class="borrow_list" v-for="item in BorrowMoneFinishList">
+        <div class="borrow_list" v-for="item in DayAppleFinishList">
           <div class="borrow_info">
             <span class="bianma">编码：{{item.formcode}}</span><span class="pro_name">名称：{{item.protypename}}</span>
             <div class="pro_info">
-              <span>部门：{{item.deptname}}</span><span>金额：{{item.loanpay}}元</span><span>报销人：{{item.createbyname}}</span>
+              <span>部门：{{item.deptid}}</span><span>金额：{{item.paymoney}}元</span><span>报销人：{{item.createbyname}}</span>
             </div>
             <div class="borrow_time">
-              <span>时间：{{item.expecttime}}</span><span>步骤：<van-tag type="warning">{{item.desc}}</van-tag></span>
+              <span>时间：{{item.createtime}}</span><span>步骤：<van-tag type="warning">{{item.desc}}</van-tag></span>
               <van-button type="info" size="small" @click="lookInfoBtn(item.Loanid)">查看</van-button>
             </div>
           </div>
@@ -67,134 +67,95 @@
     </van-tabs>
   </div>
 </template>
+
 <script>
-  import {
-    Dialog
-  } from 'vant';
   export default {
     data() {
       return {
+        pagenum: '0',
+        DayMoneyList: [],
+        pagetotal: 0,
+        DayAppleWaitList: [],
+        Waittotal: 0,
+        DayAppleFinishList: [],
+        Finishtotal: 0,
         activeName: 'a',
-        // 已申请列表数据
-        borrowMoneList: [],
-        // 请求页码
-        pagenum: 0,
-        // 待办理列表数据
-        BorrowMoneWaitList: [],
-        // 已办理数据列表
-        BorrowMoneFinishList: [],
-      }
+      };
     },
     created() {
-      // 调用获取已申请列表数据
-      this.getBorrowMoneyList()
-      // 调用获取待办理列表数据
-      this.getBorrowMoneWaitList()
-      // 调用获取已办理列表数据
-      this.getBorrowMoneFinishList()
+      // 获取已申请数据列表
+      this.getDayMoneyList()
+      // 待办理列表数据获取
+      this.getDayAppleWaitList()
+      // 已办理列表数据获取
+      this.getDayAppleFinishList()
+    },
+    mounted() {
+
     },
     methods: {
       // 获取已申请数据列表
-      async getBorrowMoneyList() {
+      async getDayMoneyList() {
         let empcard = sessionStorage.getItem('ulogin')
         let pagenum = this.pagenum
         const {
           data: res
-        } = await this.$axios.post('/expendLoan/queryList', {
+        } = await this.$axios.post('/expendDaily/queryList', {
           empcard,
           pagenum
         })
         if (res.length > 0) {
-          let data = JSON.parse(res)
-          this.borrowMoneList = data.tralist
-          this.pagetotal = data.pagetotal
+          let DayMoneyData = JSON.parse(res)
+          this.DayMoneyList = DayMoneyData.dailylist
+          this.pagetotal = DayMoneyData.pagetotal
+          console.log(this.DayMoneyList);
         } else {
           this.$message.error('获取数据失败！');
         }
       },
       // 待办理列表数据获取
-      async getBorrowMoneWaitList() {
+      async getDayAppleWaitList() {
         let empcard = sessionStorage.getItem('ulogin')
         let pagenum = this.pagenum
         const {
           data: res
-        } = await this.$axios.post('/expendLoan/queryWaitAudit', {
+        } = await this.$axios.post('/expendDaily/queryWaitAudit', {
           empcard,
           pagenum
         })
         if (res.length > 0) {
           let data = JSON.parse(res)
-          this.BorrowMoneWaitList = data.loanlist
+          this.DayAppleWaitList = data.dailylist
           this.Waittotal = data.pagetotal
         } else {
           this.$message.error('获取数据失败！');
         }
       },
       // 已办理列表数据获取
-      async getBorrowMoneFinishList() {
+      async getDayAppleFinishList() {
         let empcard = sessionStorage.getItem('ulogin')
         let pagenum = this.pagenum
         const {
           data: res
-        } = await this.$axios.post('/expendLoan/queryFinishAudit', {
+        } = await this.$axios.post('/expendDaily/queryFinishAudit', {
           empcard,
           pagenum
         })
         if (res.length > 0) {
           let data = JSON.parse(res)
-          this.BorrowMoneFinishList = data.loanlist
-          console.log('BorrowMoneFinishList', this.BorrowMoneFinishList);
-
+          this.DayAppleFinishList = data.dailylist
           this.Finishtotal = data.pagetotal
         } else {
           this.$message.error('获取数据失败！');
         }
       },
-      // 提交审核跳转事件
-      handleBorrowBtn(id) {
-        this.$router.push({
-          path: "/handBorrowPage",
-          query: {
-            id
-          }
-        })
-      },
-      // 办理按钮跳转事件
-      handleBorrowApplyBtn(Loanid, taskID) {
-        this.$router.push({
-          path: "/borrowApplyPage",
-          query: {
-            Loanid: Loanid,
-            taskID: taskID
-          }
-        })
-      },
-      // 查看申请按钮跳转事件
-      lookInfoBtn(id) {
-        this.$router.push({
-          path: '/lookBorrow',
-          query: {
-            id
-          }
-        })
-      },
-      editBorrowApplyBtn() {
-        let width = document.body.clientWidth
-        if (width < 500) {
-          Dialog.alert({
-            title: '温馨提示',
-            message: '因修改数据复杂，建议登录电脑端修改信息',
-          })
-        }
-      }
     },
   }
 
 </script>
 
-
 <style scoped>
-  .borrow {
+  .day_page {
     box-sizing: border-box;
     background-color: #f6f7fb;
   }
@@ -231,7 +192,7 @@
   }
 
   .pro_name {
-    margin-left: 1rem;
+    margin-left: 1.2rem;
   }
 
   .borrow_time {

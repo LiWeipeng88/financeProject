@@ -18,6 +18,10 @@ import UserAdmin from "@/views/pc/userAdmin";
 import Banner from "@/views/pc/banner";
 import DayApply from "@/views/pc/dayApply";
 import BorrowApply from "@/views/pc/borrowApply";
+import TravelApply from "@/views/pc/travelApply";
+import EditDay from "@/views/pc/editDay";
+import EditBorrow from "@/views/pc/editBorrow";
+import EditTravel from "@/views/pc/editTravel";
 import All from "@/views/pc/all";
 
 Vue.use(Router);
@@ -41,8 +45,15 @@ let router = new Router({
       children: [
         {
           path: "/expendTavel/queryPage", //差旅报销
-          alias: "/evection",
           component: Chuchai
+        },
+        {
+          path: "/expendTavel/travelApply",
+          component: TravelApply
+        },
+        {
+          path: "/expendTavel/editTravel",
+          component: EditTravel
         },
         {
           path: "/flowpost/queryPage", //流程设置
@@ -53,8 +64,12 @@ let router = new Router({
           component: BorrowMoney
         },
         {
-          path: "/expendLoan/borrowApply",
+          path: "/expendLoan/borrowApply", //  借款报销申请界面
           component: BorrowApply
+        },
+        {
+          path: "/expendLoan/editBorrow", //  借款申请驳回修改
+          component: EditBorrow
         },
         {
           path: "/expendDaily/queryPage", //  日常报销
@@ -63,6 +78,10 @@ let router = new Router({
         {
           path: "/expendDaily/dayApply", //  日常报销申请界面
           component: DayApply
+        },
+        {
+          path: "/expendDaily/editDay", //日常报销驳回修改
+          component: EditDay
         },
         {
           path: "/welcome",
