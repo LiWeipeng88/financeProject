@@ -13,6 +13,13 @@ import HandBorrowPage from "@/views/mobile/borrowViews/handBorrowPage.vue";
 import BorrowApplyPage from "@/views/mobile/borrowViews/borrowApplyPage.vue";
 import LookBorrow from "@/views/mobile/borrowViews/lookBorrow.vue";
 import DayPage from "@/views/mobile/dayViews/dayPage.vue";
+import HandDayPage from "@/views/mobile/dayViews/handDayPage.vue";
+import LookDay from "@/views/mobile/dayViews/lookDay.vue";
+import DayApplyPage from "@/views/mobile/dayViews/dayApplyPage.vue";
+import TravelPage from "@/views/mobile/travelViews/travelPage.vue";
+import HandTravelPage from "@/views/mobile/travelViews/handtravelPage.vue";
+import LookTravel from "@/views/mobile/travelViews/lookTravel.vue";
+import TravelApplyPage from "@/views/mobile/travelViews/travelApplyPage.vue";
 
 Vue.use(Router);
 
@@ -44,26 +51,54 @@ let router = new Router({
           name: "Table",
           component: Table
         },
+        // 差旅报销相关页面
         {
           path: "/expendTavel/queryPage",
-          name: "Travel",
-          component: Travel
+          name: "TravelPage",
+          component: TravelPage
         },
         {
-          path: "/expendLoan/queryPage",
-          name: "BorrowPage",
-          component: BorrowPage
+          path: "/handTravelPage",
+          name: "HandTravelPage",
+          component: HandTravelPage
         },
+        {
+          path: "/travelApplyPage",
+          name: "TravelApplyPage",
+          component: TravelApplyPage
+        },
+        {
+          path: "/lookTravel",
+          name: "LookTravel",
+          component: LookTravel
+        },
+        // 日常报销相关页面
         {
           path: "/expendDaily/queryPage",
           name: "DayPage",
           component: DayPage
         },
-        // {
-        //   path: "/borrowPage", //修改后的借款界面
-        //   name: "BorrowPage",
-        //   component: BorrowPage
-        // },
+        {
+          path: "/handDayPage",
+          name: "HandDayPage",
+          component: HandDayPage
+        },
+        {
+          path: "/lookDay",
+          name: "LookDay",
+          component: LookDay
+        },
+        {
+          path: "/dayApplyPage",
+          name: "DayApplyPage",
+          component: DayApplyPage
+        },
+        // 借款相关页面
+        {
+          path: "/expendLoan/queryPage",
+          name: "BorrowPage",
+          component: BorrowPage
+        },
         {
           path: "/handBorrowPage",
           name: "HandBorrowPage",

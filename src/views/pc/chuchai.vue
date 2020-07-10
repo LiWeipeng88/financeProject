@@ -706,7 +706,6 @@
         this.travelList = travelData.tralist;
         this.pagetotal = travelData.pagetotal;
         console.log('travelList', this.travelList);
-
       },
 
       // 项目选择事件

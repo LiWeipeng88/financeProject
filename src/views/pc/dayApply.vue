@@ -62,7 +62,7 @@
             <el-form-item label="是否完结:">
               <el-select v-model="ProDraList.isflag" placeholder="请选择状态" @change="changeisflag">
                 <el-option label="已完结" value="1"></el-option>
-                <el-option label="未完结" value="0"></el-option>
+                <el-option label="未完结" value="2"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -126,7 +126,7 @@
         },
         ProDraList: {
           year: '2020',
-          isflag: '0',
+          isflag: '2',
           pagenum: '0',
           proid: ''
         },
