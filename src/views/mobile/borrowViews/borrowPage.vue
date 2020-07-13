@@ -11,12 +11,14 @@
       <van-tab title="已申请列表" name="a">
         <div class="borrow_list" v-for="item in borrowMoneList">
           <div class="borrow_info">
-            <span class="bianma">编码：{{item.formcode}}</span><span class="pro_name">名称：{{item.protypename}}</span>
+            <div class="borrow_time">
+              <span class="bianma">编码：{{item.formcode}}</span> <span>时间：{{item.expecttime}}</span>
+            </div>
             <div class="pro_info">
               <span>部门：{{item.deptname}}</span><span>金额：{{item.loanpay}}元</span><span>报销人：{{item.createbyname}}</span>
             </div>
             <div class="borrow_time">
-              <span>时间：{{item.expecttime}}</span><span>状态：
+              <span>名称：{{item.protypename}}</span><span>状态：
                 <van-tag v-if="item.currentstep == 1" type="primary" size="small">流转中</van-tag>
                 <van-tag type="warning" v-else size="small">待处理</van-tag>
               </span>
@@ -30,13 +32,15 @@
       <van-tab title="待办理列表" name="b">
         <div class="borrow_list" v-for="item in BorrowMoneWaitList">
           <div class="borrow_info">
-            <span class="bianma">编码：{{item.formcode}}</span><span class="pro_name">名称：{{item.protypename}}</span>
+            <div class="borrow_time">
+              <span class="bianma">编码：{{item.formcode}}</span> <span>时间：{{item.expecttime}}</span>
+            </div>
             <div class="pro_info">
               <span>部门：{{item.deptname}}</span><span>金额：{{item.loanpay}}元</span><span>报销人：{{item.createbyname}}</span>
             </div>
             <div class="borrow_time">
-              <span>时间：{{item.expecttime}}</span><span>状态：<van-tag v-if="item.currentstep == 1" type="primary"
-                         size="small">流转中</van-tag>
+              <span>名称：{{item.protypename}}</span>
+              <span>状态：<van-tag v-if="item.currentstep == 1" type="primary" size="small">流转中</van-tag>
                 <van-tag type="warning" v-else size="small">待处理</van-tag>
               </span>
               <van-button type="info" size="small" v-if="item.currentstep == 1"
@@ -53,12 +57,14 @@
       <van-tab title="已办理列表" name="c">
         <div class="borrow_list" v-for="item in BorrowMoneFinishList">
           <div class="borrow_info">
-            <span class="bianma">编码：{{item.formcode}}</span><span class="pro_name">名称：{{item.protypename}}</span>
+            <div class="borrow_time">
+              <span class="bianma">编码：{{item.formcode}}</span> <span>时间：{{item.expecttime}}</span>
+            </div>
             <div class="pro_info">
               <span>部门：{{item.deptname}}</span><span>金额：{{item.loanpay}}元</span><span>报销人：{{item.createbyname}}</span>
             </div>
             <div class="borrow_time">
-              <span>时间：{{item.expecttime}}</span><span>步骤：<van-tag type="warning">{{item.desc}}</van-tag></span>
+              <span>名称：{{item.protypename}}</span><span>步骤：<van-tag type="warning">{{item.desc}}</van-tag></span>
               <van-button type="info" size="small" @click="lookInfoBtn(item.Loanid)">查看</van-button>
             </div>
           </div>
@@ -83,6 +89,8 @@
         BorrowMoneWaitList: [],
         // 已办理数据列表
         BorrowMoneFinishList: [],
+        has_log: 0,
+        no_data: false,
       }
     },
     created() {
@@ -92,6 +100,9 @@
       this.getBorrowMoneWaitList()
       // 调用获取已办理列表数据
       this.getBorrowMoneFinishList()
+    },
+    mounted() {
+      window.addEventListener('scroll', this.onScroll)
     },
     methods: {
       // 获取已申请数据列表
@@ -106,7 +117,7 @@
         })
         if (res.length > 0) {
           let data = JSON.parse(res)
-          this.borrowMoneList = data.tralist
+          this.borrowMoneList = [...this.borrowMoneList, ...data.tralist]
           this.pagetotal = data.pagetotal
         } else {
           this.$message.error('获取数据失败！');
@@ -124,7 +135,7 @@
         })
         if (res.length > 0) {
           let data = JSON.parse(res)
-          this.BorrowMoneWaitList = data.loanlist
+          this.BorrowMoneWaitList = [...this.BorrowMoneWaitList, ...data.loanlist]
           this.Waittotal = data.pagetotal
         } else {
           this.$message.error('获取数据失败！');
@@ -142,9 +153,7 @@
         })
         if (res.length > 0) {
           let data = JSON.parse(res)
-          this.BorrowMoneFinishList = data.loanlist
-          console.log('BorrowMoneFinishList', this.BorrowMoneFinishList);
-
+          this.BorrowMoneFinishList = [...this.BorrowMoneFinishList, ...data.loanlist]
           this.Finishtotal = data.pagetotal
         } else {
           this.$message.error('获取数据失败！');
@@ -186,6 +195,26 @@
             message: '因修改数据复杂，建议登录电脑端修改信息',
           })
         }
+      },
+      onScroll() {
+        this.has_log = 1
+        let innerHeight = document.querySelector('#app').clientHeight
+        let outerHeight = document.documentElement.clientHeight
+        let scrollTop = document.documentElement.scrollTop
+        let isCount = outerHeight + scrollTop
+        if (isCount - innerHeight < 150) {
+          if (this.no_data === true) {
+            this.has_log = 2
+            return false
+          }
+          console.log('-----------------')
+          this.pagenum++
+          this.getBorrowMoneyList()
+          // 调用获取待办理列表数据
+          this.getBorrowMoneWaitList()
+          // 调用获取已办理列表数据
+          this.getBorrowMoneFinishList()
+        }
       }
     },
   }
@@ -212,7 +241,7 @@
 
   .borrow_list {
     padding: 0rem .625rem;
-    font-size: .875rem;
+    font-size: .8125rem;
   }
 
   .borrow_info {

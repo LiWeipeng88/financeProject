@@ -11,12 +11,15 @@
       <van-tab title="已申请列表" name="a">
         <div class="borrow_list">
           <div class="borrow_info" v-for="item in DayMoneyList">
-            <span class="bianma">编码：{{item.formcode}}</span><span class="pro_name">名称：{{item.protypename}}</span>
+            <div class="borrow_time">
+              <span class="bianma">编码：{{item.formcode}}</span><span>时间：{{item.createtime}}</span>
+            </div>
             <div class="pro_info">
               <span>部门：{{item.deptid}}</span><span>金额：{{item.paymoney}}元</span><span>报销人：{{item.createbyname}}</span>
             </div>
             <div class="borrow_time">
-              <span>时间：{{item.createtime}}</span><span>状态：
+              <span>名称：{{item.protypename}}</span>
+              <span>状态：
                 <van-tag v-if="item.currentstep == 1" type="primary" size="small">流转中</van-tag>
                 <van-tag type="warning" v-else size="small">待处理</van-tag>
               </span>
@@ -30,13 +33,15 @@
       <van-tab title="待办理列表" name="b">
         <div class="borrow_list" v-for="item in DayAppleWaitList">
           <div class="borrow_info">
-            <span class="bianma">编码：{{item.formcode}}</span><span class="pro_name">名称：{{item.protypename}}</span>
+            <div class="borrow_time">
+              <span class="bianma">编码：{{item.formcode}}</span><span>时间：{{item.createtime}}</span>
+            </div>
             <div class="pro_info">
               <span>部门：{{item.deptid}}</span><span>金额：{{item.paymoney}}元</span><span>报销人：{{item.createbyname}}</span>
             </div>
             <div class="borrow_time">
-              <span>时间：{{item.createtime}}</span><span>状态：<van-tag v-if="item.currentstep == 1" type="primary"
-                         size="small">流转中</van-tag>
+              <span>名称：{{item.protypename}}</span>
+              <span>状态：<van-tag v-if="item.currentstep == 1" type="primary" size="small">流转中</van-tag>
                 <van-tag type="warning" v-else size="small">待处理</van-tag>
               </span>
               <van-button type="info" size="small" v-if="item.currentstep == 1"
@@ -52,12 +57,15 @@
       <van-tab title="已办理列表" name="c">
         <div class="borrow_list" v-for="item in DayAppleFinishList">
           <div class="borrow_info">
-            <span class="bianma">编码：{{item.formcode}}</span><span class="pro_name">名称：{{item.protypename}}</span>
+            <div class="borrow_time">
+              <span class="bianma">编码：{{item.formcode}}</span><span>时间：{{item.createtime}}</span>
+            </div>
             <div class="pro_info">
               <span>部门：{{item.deptid}}</span><span>金额：{{item.paymoney}}元</span><span>报销人：{{item.createbyname}}</span>
             </div>
             <div class="borrow_time">
-              <span>时间：{{item.createtime}}</span><span>步骤：<van-tag type="warning">{{item.desc}}</van-tag></span>
+              <span>名称：{{item.protypename}}</span><span>步骤：<van-tag type="warning">{{item.desc}}
+                </van-tag></span>
               <van-button type="info" size="small" @click="lookInfoBtn(item.dailyid)">查看</van-button>
             </div>
           </div>
@@ -127,7 +135,7 @@
         })
         if (res.length > 0) {
           let data = JSON.parse(res)
-          this.DayAppleWaitList = data.dailylist
+          this.DayAppleWaitList = [...this.DayAppleWaitList, ...data.dailylist]
           this.Waittotal = data.pagetotal
         } else {
           this.$message.error('获取数据失败！');
@@ -145,7 +153,7 @@
         })
         if (res.length > 0) {
           let data = JSON.parse(res)
-          this.DayAppleFinishList = data.dailylist
+          this.DayAppleFinishList = [...this.DayAppleFinishList, ...data.dailylist]
           this.Finishtotal = data.pagetotal
         } else {
           this.$message.error('获取数据失败！');
@@ -201,6 +209,8 @@
           console.log('-----------------')
           this.pagenum++
           this.getDayMoneyList()
+          this.getDayAppleFinishList()
+          this.getDayAppleWaitList()
         }
       }
 
@@ -231,9 +241,8 @@
   }
 
   .borrow_list {
-
     padding: 0rem .625rem;
-    font-size: .875rem;
+    font-size: .8125rem;
   }
 
   .borrow_info {

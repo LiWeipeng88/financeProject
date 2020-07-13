@@ -11,12 +11,15 @@
       <van-tab title="已申请列表" name="a">
         <div class="borrow_list" v-for="item in travelList">
           <div class="borrow_info">
-            <span class="bianma">编码：{{item.formcode}}</span><span class="pro_name">名称：{{item.protypename}}</span>
+            <div class="borrow_time">
+              <span class="bianma">编码：{{item.formcode}}</span><span>时间：{{item.createtime}}</span>
+            </div>
             <div class="pro_info">
               <span>部门：{{item.deptname}}</span><span>金额：{{item.paymoney}}元</span><span>报销人：{{item.createbyname}}</span>
             </div>
             <div class="borrow_time">
-              <span>时间：{{item.createtime}}</span><span>状态：
+              <span>名称：{{item.protypename}}</span>
+              <span>状态：
                 <van-tag v-if="item.currentstep == 1" type="primary" size="small">流转中</van-tag>
                 <van-tag type="warning" v-else size="small">待处理</van-tag>
               </span>
@@ -30,12 +33,14 @@
       <van-tab title="待办理列表" name="b">
         <div class="borrow_list" v-for="item in approveDataList">
           <div class="borrow_info">
-            <span class="bianma">编码：{{item.formcode}}</span><span class="pro_name">名称：{{item.protypename}}</span>
+            <div class="borrow_time">
+              <span class="bianma">编码：{{item.formcode}}</span><span>时间：{{item.createtime}}</span>
+            </div>
             <div class="pro_info">
               <span>部门：{{item.deptname}}</span><span>金额：{{item.paymoney}}元</span><span>报销人：{{item.createbyname}}</span>
             </div>
             <div class="borrow_time">
-              <span>时间：{{item.createtime}}</span><span>状态：<van-tag v-if="item.currentstep == 1" type="primary"
+              <span>名称：{{item.protypename}}</span><span>状态：<van-tag v-if="item.currentstep == 1" type="primary"
                          size="small">流转中</van-tag>
                 <van-tag type="warning" v-else size="small">待处理</van-tag>
               </span>
@@ -52,12 +57,14 @@
       <van-tab title="已办理列表" name="c">
         <div class="borrow_list" v-for="item in yesApproveDataList">
           <div class="borrow_info">
-            <span class="bianma">编码：{{item.formcode}}</span><span class="pro_name">名称：{{item.protypename}}</span>
+            <div class="borrow_time">
+              <span class="bianma">编码：{{item.formcode}}</span><span>时间：{{item.createtime}}</span>
+            </div>
             <div class="pro_info">
               <span>部门：{{item.deptname}}</span><span>金额：{{item.paymoney}}元</span><span>报销人：{{item.createbyname}}</span>
             </div>
             <div class="borrow_time">
-              <span>时间：{{item.createtime}}</span><span>步骤：<van-tag type="warning">{{item.desc}}</van-tag></span>
+              <span>名称：{{item.protypename}}</span><span>步骤：<van-tag type="warning">{{item.desc}}</van-tag></span>
               <van-button type="info" size="small" @click="lookInfoBtn(item.travelid)">查看</van-button>
             </div>
           </div>
@@ -79,6 +86,8 @@
         yesApprovepagetotal: 0,
         pagenum: '0',
         activeName: 'a',
+        has_log: 0,
+        no_data: false,
       };
     },
     created() {
@@ -90,7 +99,7 @@
       this.getYesApproveList()
     },
     mounted() {
-
+      window.addEventListener('scroll', this.onScroll)
     },
     methods: {
       // 获取已申请数据列表
@@ -104,7 +113,7 @@
           pagenum
         });
         let travelData = JSON.parse(res)
-        this.travelList = travelData.tralist;
+        this.travelList = [...this.travelList, ...travelData.tralist];
         this.pagetotal = travelData.pagetotal;
         console.log('travelList', this.travelList);
       },
@@ -119,7 +128,7 @@
           pagenum
         })
         let approveData = JSON.parse(res)
-        this.approveDataList = approveData.tralist
+        this.approveDataList = [...this.approveDataList, ...approveData.tralist]
         this.approvepagetotal = approveData.pagetotal
         console.log('getNoApproveList', this.approveDataList)
       },
@@ -134,7 +143,7 @@
           pagenum
         })
         let yesApproveData = JSON.parse(res)
-        this.yesApproveDataList = yesApproveData.tralist
+        this.yesApproveDataList = [...this.yesApproveDataList, ...yesApproveData.tralist]
         this.yesApprovepagetotal = yesApproveData.pagetotal
         console.log('yesApproveDataList', this.yesApproveDataList)
       },
@@ -175,6 +184,26 @@
           }
         })
       },
+      onScroll() {
+        this.has_log = 1
+        let innerHeight = document.querySelector('#app').clientHeight
+        let outerHeight = document.documentElement.clientHeight
+        let scrollTop = document.documentElement.scrollTop
+        let isCount = outerHeight + scrollTop
+        if (isCount - innerHeight < 150) {
+          if (this.no_data === true) {
+            this.has_log = 2
+            return false
+          }
+          console.log('-----------------')
+          this.pagenum++
+          this.getTravelList()
+          // 待办理列表数据获取
+          this.getNoApproveList()
+          // 已办理列表数据获取
+          this.getYesApproveList()
+        }
+      }
     }
   }
 
@@ -199,7 +228,7 @@
 
   .borrow_list {
     padding: 0rem .625rem;
-    font-size: .875rem;
+    font-size: .8125rem;
   }
 
   .borrow_info {
