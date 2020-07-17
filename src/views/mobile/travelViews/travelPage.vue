@@ -9,8 +9,8 @@
     <van-tabs v-model="activeName">
       <!-- 已申请列表数据 -->
       <van-tab title="已申请列表" name="a">
-        <div class="borrow_list" v-for="item in travelList">
-          <div class="borrow_info">
+        <div class="borrow_list">
+          <div class="borrow_info" v-for="item in travelList">
             <div class="borrow_time">
               <span class="bianma">编码：{{item.formcode}}</span><span>时间：{{item.createtime}}</span>
             </div>
@@ -31,8 +31,8 @@
       </van-tab>
       <!-- 待办理列表数据 -->
       <van-tab title="待办理列表" name="b">
-        <div class="borrow_list" v-for="item in approveDataList">
-          <div class="borrow_info">
+        <div class="borrow_list">
+          <div class="borrow_info" v-for="item in approveDataList">
             <div class="borrow_time">
               <span class="bianma">编码：{{item.formcode}}</span><span>时间：{{item.createtime}}</span>
             </div>
@@ -55,8 +55,8 @@
       </van-tab>
       <!-- 已办理数据列表 -->
       <van-tab title="已办理列表" name="c">
-        <div class="borrow_list" v-for="item in yesApproveDataList">
-          <div class="borrow_info">
+        <div class="borrow_list">
+          <div class="borrow_info" v-for="item in yesApproveDataList">
             <div class="borrow_time">
               <span class="bianma">编码：{{item.formcode}}</span><span>时间：{{item.createtime}}</span>
             </div>
@@ -212,15 +212,8 @@
 <style scoped>
   .travel_page {
     box-sizing: border-box;
-    background-color: #f6f7fb;
   }
 
-  .top {
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 9;
-  }
 
   .el-breadcrumb {
     padding: .875rem;

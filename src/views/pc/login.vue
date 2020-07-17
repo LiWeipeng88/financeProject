@@ -16,6 +16,10 @@
               <i style="font-size: 18px; color: #409eff;" slot="prefix" class="el-input__icon el-icon-lock"></i>
             </el-input>
           </el-form-item>
+          <div class="remember">
+            <input type="checkBox" name="adviceCheck" id="adviceCheck" :checked="pasChecked" @click="changeChecked" />
+            <label for="adviceCheck" class="advice">下次自动登录</label>
+          </div>
           <el-form-item>
             <el-button type="danger" @click="resetForm" class="submit_btn" round>重置</el-button>
             <el-button type="primary" @click="submitForm" class="submit_btn" round>登录</el-button>
@@ -34,9 +38,11 @@
 </template>
 <script>
   import jwt_decode from "jwt-decode";
+  import tokenUtils from '../../../utils/cookieToken'
   export default {
     data() {
       return {
+        pasChecked: false,
         emptel: '',
         loginUser: {
           username: "",
@@ -71,8 +77,37 @@
         }
       };
     },
+    mounted() {
+      if (document.cookie.length > 0) {
+        var arr = document.cookie.split('; '); //这里显示的格式需要切割一下自己可输出看下
+        for (var i = 0; i < arr.length; i++) {
+          var arr2 = arr[i].split('='); //再次切割
+          //判断查找相对应的值
+          if (arr2[0] == 'username') {
+            this.loginUser.username = arr2[1]; //保存到保存数据的地方
+          } else if (arr2[0] == 'password') {
+            this.loginUser.password = arr2[1];
+          }
+        }
+        this.submitForm()
+      }
+    },
     methods: {
+      changeChecked() {
+        this.pasChecked = !this.pasChecked;
+      },
       async submitForm() {
+        //保存的账号
+        let name = this.loginUser.username;
+        //保存的密码
+        let pass = this.loginUser.password;
+        //判断复选框是否被勾选 勾选则调用配置cookie方法
+        if (this.pasChecked == true) {
+          //传入账号名，密码，和保存天数3个参数
+          tokenUtils.setCookie(name, pass, 7);
+        } else {
+          tokenUtils.clearCookie()
+        }
         this.$refs.loginForm.validate(valid => {
           if (!valid) return this.$message.error("登录失败");
         });
@@ -109,8 +144,6 @@
         } = await this.$axios.post('/employee/queryEmpByTel', {
           emptel
         })
-        console.log(res);
-
         let data = JSON.parse(res);
         let ulogin = data.empcard || 'admin'
         let empname = data.empname || 'admin'
@@ -118,7 +151,7 @@
         sessionStorage.setItem("entname", empname);
         sessionStorage.setItem("userInfo", JSON.stringify(data));
         this.$router.push({
-          path: "/home"
+          path: "/"
         });
       }
     }
@@ -128,8 +161,9 @@
 <style scoped="scoped">
   .login {
     position: relative;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
+    min-height: 700px;
     background-image: url('../../assets/img/login_bg.jpg');
     background-repeat: no-repeat;
     background-size: 100% 100%;
@@ -199,6 +233,13 @@
 
   .go_register p a {
     color: #409eff;
+  }
+
+  .remember {
+    text-align: left;
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 16px;
   }
 
 </style>

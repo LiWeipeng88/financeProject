@@ -22,6 +22,12 @@ import TravelApply from "@/views/pc/travelApply";
 import EditDay from "@/views/pc/editDay";
 import EditBorrow from "@/views/pc/editBorrow";
 import EditTravel from "@/views/pc/editTravel";
+import NoticePage from '@/views/pc/notice/NoticePage.vue'
+import AddNotice from '@/views/pc/notice/addNotice.vue'
+import DraftPage from '@/views/pc/proDraft/draftPage.vue'
+import Personal from '@/views/pc/pseson/personal.vue'
+import EditWord from '@/views/pc/pseson/editWord.vue'
+
 import All from "@/views/pc/all";
 
 Vue.use(Router);
@@ -39,7 +45,7 @@ let router = new Router({
       component: Register
     },
     {
-      path: "/home",
+      path: "/",
       component: Home,
       redirect: "/welcome",
       children: [
@@ -118,6 +124,31 @@ let router = new Router({
         {
           path: "/banner/queryPage",
           component: Banner
+        },
+        {
+          path: '/notice/queryPage',
+          name: 'NoticePage',
+          component: NoticePage
+        },
+        {
+          path: '/projectDraft/queryPage',
+          name: 'DraftPage',
+          component: DraftPage
+        },
+        {
+          path: '/addNotice',
+          name: 'AddNotice',
+          component: AddNotice
+        },
+        {
+          path: '/employee/queryOne',
+          name: 'Personal',
+          component: Personal
+        },
+        {
+          path: '/employee/password',
+          name: 'EditWord',
+          component: EditWord
         }
       ]
     },

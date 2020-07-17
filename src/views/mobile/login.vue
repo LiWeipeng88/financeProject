@@ -5,14 +5,14 @@
         <span class="title">财务综合服务平台</span>
       </div>
       <div class="login_box">
-        <el-form class="loginForm" :model="loginForm" ref="loginForm" :rules="loginRules" utocomplete="off">
+        <el-form class="loginForm" :model="loginUser" ref="loginForm" :rules="loginRules" utocomplete="off">
           <el-form-item prop="username">
-            <el-input v-model="loginForm.username" placeholder="请输入用户名" autocomplete="off">
+            <el-input v-model="loginUser.username" placeholder="请输入用户名" autocomplete="off">
               <i style="font-size: 1.125rem; color: #409eff;" slot="prefix" class="el-input__icon el-icon-user"></i>
             </el-input>
           </el-form-item>
           <el-form-item prop="password">
-            <el-input v-model="loginForm.password" placeholder="请输入密码" type="password" autocomplete="new-password">
+            <el-input v-model="loginUser.password" placeholder="请输入密码" type="password" autocomplete="new-password">
               <i style="font-size: 1.125rem; color: #409eff;" slot="prefix" class="el-input__icon el-icon-lock"></i>
             </el-input>
           </el-form-item>
@@ -36,11 +36,13 @@
 </template>
 
 <script>
+  import tokenUtils from '../../../utils/cookieToken'
   export default {
     data() {
       return {
+        pasChecked: true,
         emptel: '',
-        loginForm: {
+        loginUser: {
           username: "",
           password: "",
           openid: ""
@@ -73,20 +75,46 @@
         }
       };
     },
+    mounted() {
+      if (document.cookie.length > 0) {
+        var arr = document.cookie.split('; '); //这里显示的格式需要切割一下自己可输出看下
+        for (var i = 0; i < arr.length; i++) {
+          var arr2 = arr[i].split('='); //再次切割
+          //判断查找相对应的值
+          if (arr2[0] == 'username') {
+            this.loginUser.username = arr2[1]; //保存到保存数据的地方
+          } else if (arr2[0] == 'password') {
+            this.loginUser.password = arr2[1];
+          }
+        }
+        this.submitForm()
+      }
+    },
     methods: {
       async submitForm() {
+        //保存的账号
+        let name = this.loginUser.username;
+        //保存的密码
+        let pass = this.loginUser.password;
+        //判断复选框是否被勾选 勾选则调用配置cookie方法
+        if (this.pasChecked == true) {
+          //传入账号名，密码，和保存天数3个参数
+          tokenUtils.setCookie(name, pass, 7);
+        } else {
+          tokenUtils.clearCookie()
+        }
         this.$refs.loginForm.validate(valid => {
           if (!valid) return this.$message.error("登录失败");
         });
-        console.log(this.loginForm);
+        console.log(this.loginUser);
         const {
           data: res
         } = await this.$axios
           .post("/admin/webLogin", {
             admin: [{
-              ulogin: this.loginForm.username,
-              upwd: this.loginForm.password,
-              openid: this.loginForm.openid
+              ulogin: this.loginUser.username,
+              upwd: this.loginUser.password,
+              openid: this.loginUser.openid
             }]
           })
         let data = JSON.parse(res);
@@ -133,6 +161,7 @@
     position: relative;
     width: 100%;
     height: 100%;
+    min-height: 550px;
     background-image: url('../../assets/img/login_bg.jpg');
     background-repeat: no-repeat;
     background-size: 100% 100%;
@@ -151,16 +180,16 @@
 
   .from_container {
     position: absolute;
-    width: 360px;
+    width: 22rem;
     top: 20%;
-    left: calc(50% - 180px);
+    left: calc(50% - 11rem);
     text-align: center;
     border-radius: 10px;
     background-color: rgba(225, 225, 225, 0.22);
   }
 
   .from_container .header {
-    padding: 24px 0;
+    padding: 1.5rem 0;
   }
 
   .from_container .header .title {

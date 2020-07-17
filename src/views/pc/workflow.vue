@@ -2,7 +2,7 @@
   <div class="work_flow">
     <!-- 面包屑导航 -->
     <el-breadcrumb separator="/">
-      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>基础信息</el-breadcrumb-item>
       <el-breadcrumb-item>流程设置</el-breadcrumb-item>
     </el-breadcrumb>

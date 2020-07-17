@@ -28,11 +28,14 @@ Vue.use(Element);
 import Vant from "vant";
 import "vant/lib/index.css";
 
+import echarts from 'echarts'  //引入Echarts，
+
+Vue.prototype.$echarts = echarts  //定义为全局变量
 Vue.use(Vant);
 
 import axios from "axios";
-axios.defaults.baseURL = "http://192.168.0.63:8080/sfFinace/"; //本地地址
-// axios.defaults.baseURL = "http://10.10.10.220:8111/sfFinace/"; //服务器地址
+// axios.defaults.baseURL = "http://192.168.0.63:8080/sfFinace/"; //本地地址
+axios.defaults.baseURL = "http://221.11.70.78:8111/sfFinace/"; //服务器地址
 Vue.prototype.$axios = axios;
 
 Vue.config.productionTip = false;

@@ -2,7 +2,7 @@
   <div class="borrow_apply">
     <!-- 面包屑导航 -->
     <el-breadcrumb separator="/">
-      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>报销系统</el-breadcrumb-item>
       <el-breadcrumb-item>借款</el-breadcrumb-item>
       <el-breadcrumb-item>申请填写</el-breadcrumb-item>

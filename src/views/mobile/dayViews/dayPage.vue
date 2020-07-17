@@ -76,7 +76,6 @@
 </template>
 
 <script>
-  import BScroll from 'better-scroll'
   export default {
     data() {
       return {
@@ -101,7 +100,7 @@
       this.getDayAppleFinishList()
     },
     mounted() {
-      window.addEventListener('scroll', this.onScroll)
+
     },
     methods: {
       // 获取已申请数据列表
@@ -222,23 +221,13 @@
 <style scoped>
   .day_page {
     box-sizing: border-box;
-    background-color: #f6f7fb;
-  }
 
-  .top {
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 9;
   }
 
   .el-breadcrumb {
     padding: .875rem;
   }
 
-  .bscroll {
-    height: 100vh;
-  }
 
   .borrow_list {
     padding: 0rem .625rem;

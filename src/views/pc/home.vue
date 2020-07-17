@@ -58,6 +58,10 @@
 
     },
     methods: {
+      // 个人中心
+      personal() {
+        this.$router.push('/personal')
+      },
       // 退出登录
       loginOut() {
         // 清空token
@@ -80,6 +84,7 @@
       },
       // 点击一级菜单获取二级菜单
       async handleOpen(key) {
+        this.twoNavList = {};
         const {
           data: res
         } = await this.$axios.post('/permission/getWebPermission', {
@@ -161,6 +166,10 @@
   .el-pagination {
     margin-top: 20px;
     text-align: right;
+  }
+
+  .el-dropdown {
+    color: #fff;
   }
 
 </style>

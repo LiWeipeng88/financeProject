@@ -8,6 +8,9 @@ import Everyday from "@/views/mobile/everyday.vue";
 import Travel from "@/views/mobile/travel.vue";
 import Borrow from "@/views/mobile/borrow.vue";
 import Welcome from "@/views/mobile/welcome.vue";
+import Person from "@/views/mobile/personViews/person.vue";
+import EditInfo from "@/views/mobile/personViews/editInfo.vue";
+import EditWord from "@/views/mobile/personViews/editWord.vue";
 import BorrowPage from "@/views/mobile/borrowViews/borrowPage.vue";
 import HandBorrowPage from "@/views/mobile/borrowViews/handBorrowPage.vue";
 import BorrowApplyPage from "@/views/mobile/borrowViews/borrowApplyPage.vue";
@@ -45,6 +48,21 @@ let router = new Router({
           path: "/welcome",
           name: "welcome",
           component: Welcome
+        },
+        {
+          path: "/employee/queryOne",
+          name: "Person",
+          component: Person
+        },
+        {
+          path: "/employee/password",
+          name: "EditWord",
+          component: EditWord
+        },
+        {
+          path: "/editInfo",
+          name: 'EditInfo',
+          component: EditInfo
         },
         {
           path: "/table",
